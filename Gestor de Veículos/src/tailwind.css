@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+    font-family: 'Roboto';
+}
+
+@layer components {
+    main {
+        @apply flex  items-center w-full bg-slate-200/80 p-8 z-[1] rounded-md border-4 border-slate-800 border-dashed
+    }
+
+}

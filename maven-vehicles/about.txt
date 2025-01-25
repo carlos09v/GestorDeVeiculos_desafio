@@ -1,0 +1,20 @@
+Sobre Java:
+- JDK (Java Development Kit):
+Contém o JRE e ferramentas adicionais necessárias para o desenvolvimento de aplicações Java.
+Inclui ferramentas como javac (compilador Java), javadoc, jarsigner e outras.
+- JRE (Java Runtime Environment):
+Contém apenas o necessário para executar aplicações Java.
+
+Comandos:
+1. mvn clean
+2. mvn build
+3. mvn compile
+    - Irá gerar a pasta target\classes
+4. mvn install
+    - Compila, Testa e depois gera uma versão no (Usuário/.m2/repository)
+
+Instalação de Dependências (Maven Repository):
+- ...
+
+Docker Compose (-> PostgreSQL):
+- docker-compose up -d

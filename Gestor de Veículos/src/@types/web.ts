@@ -6,16 +6,16 @@ type TablePaginationProps = {
 }
 
 type VehicleProps = {
-    id: string
+    id?: string
     modelo: string
     fabricante: string
-    ano: Date
-    preco: number
-    addedAt: string
+    ano: number
+    preco: string
+    addedAt?: Date
 }
 
 interface CarProps extends VehicleProps {
-    quantidadePortas: number
+    quantidadePortas: 2 | 3 | 4 | 5 | 6
     combustivel: CombustivelEnum
 }
 
@@ -34,8 +34,13 @@ type VehicleContextProps = {
     countVehicles: number | null
     setVehiclesCount: (value: React.SetStateAction<number | null>) => void
     getVehicles: () => Promise<void>
-    vehicles: VehicleProps[] | null
-    setVehicle: (value: React.SetStateAction<VehicleProps[] | null>) => void
+    vehicle: VehicleType
+    vehicles: VehicleType[] | null
+    setVehicle: (value: React.SetStateAction<VehicleType>) => void
+    setVehicles: (value: React.SetStateAction<VehicleType[]>) => void
+    setCarro: React.Dispatch<React.SetStateAction<CarProps>>
+    setMoto: React.Dispatch<React.SetStateAction<MotoProps>>
 }
 
-export type { TablePaginationProps, VehicleProps, CarProps, MotoProps, VehicleContextProps }
+export type VehicleType = VehicleProps | CarProps | MotoProps;
+export type { TablePaginationProps, VehicleProps, CarProps, MotoProps, VehicleContextProps, CombustivelEnum }

@@ -7,30 +7,35 @@ import { VehicleContext } from "../Context/VehicleContext"
 
 export const Table = () => {
     const [loading, setLoading] = useState(false)
-    const { vehicles, getVehicles, setVehiclesCount } = useContext(VehicleContext)
+    const [filter, setFilter] = useState('')
+    const { vehicles, getVehicles, setVehicles } = useContext(VehicleContext)
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1)
-    const productsPerPage = 8
-    const lastVehicleIndex = currentPage * productsPerPage
-    const firstVehicleIndex = lastVehicleIndex - productsPerPage
+    const vehiclesPerPage = 8
+    const lastVehicleIndex = currentPage * vehiclesPerPage
+    const firstVehicleIndex = lastVehicleIndex - vehiclesPerPage
     const currentVehicles = vehicles?.slice(firstVehicleIndex, lastVehicleIndex)
 
     useEffect(() => {
 
     }, [])
 
-    // Delete Car
+    // Delete Vehicle
     const deleteVehicle = async (e: FormEvent, id: string) => {
         e.preventDefault()
 
         setLoading(true)
         try {
+            console.log(vehicles)
+            console.log(id)
             const { data } = await api.delete(`/delete-product/${id}`)
-
+            
             toast.success(data.message)
-            await getVehicles()
-            setVehiclesCount(null)
+            // Remover o veículo do estado local
+            setVehicles((prevVehicles) =>
+                prevVehicles?.filter(vehicle => vehicle.id !== id) || []
+            );
             setLoading(false)
         } catch (err: any) {
             if (err.response) return toast.error(err.response.data.errorMessage)
@@ -39,15 +44,16 @@ export const Table = () => {
     }
 
     return (
-        <div>
+        <div className="w-full">
             {!vehicles || vehicles.length === 0 ? (
-                <p className="text-lg font-semibold  text-center mt-1 text-red-600 underline">- Nenhum carro cadastrado :(</p>
+                <p className="font-bold text-center text-red-600 underline">- Nenhum veículo cadastrado!</p>
             ) : (
-                <div className="flex flex-col items-center gap-4">
-                    <table className="max-w-[70%] mx-auto mt-4 rounded-lg overflow-hidden shadow-lg">
+                <div className="flex flex-col items-center gap-4 ">
+                    <table className="table-auto rounded-lg overflow-hidden shadow-lg w-[75%] ">
                         <thead>
-                            <tr className="text-xl bg-purple-500 text-slate-100">
+                            <tr className="text-xl bg-black text-slate-100">
                                 <th className="text-lg">No.</th>
+                                <th></th>
                                 <th>Modelo</th>
                                 <th>Fabricante</th>
                                 <th>Ano</th>
@@ -55,17 +61,17 @@ export const Table = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentVehicles?.map((prod, i) => (
+                            {currentVehicles?.map((vehicle, i) => (
                                 <tr key={i} className='font-semibold'>
-                                    <td>{i + 1}</td>
-                                    <td>{prod.modelo}</td>
-                                    <td>{new Date(prod.addedAt).toLocaleDateString()}</td>
-                                    <td>{prod.fabricante}</td>
-                                    <td className="text-blue-700">R$ {prod.ano.toString()}</td>
+                                    <td className="text-center">{i + 1}</td>
+                                    <td className="text-center">{new Date(vehicle.addedAt ?? new Date()).toLocaleDateString()}</td>
+                                    <td className="text-left">{vehicle.modelo}</td>
+                                    <td className="text-left">{vehicle.fabricante}</td>
+                                    <td className="text-center">{vehicle.ano}</td>
+                                    <td className="text-blue-700 text-right">R$ {vehicle.preco}</td>
                                     {!loading && (
-                                        <td className="absolute ml-3 rounded p-2 bg-red-500 cursor-pointer hover:scale-105 duration-300 group" onClick={e => deleteVehicle(e, prod.id)}>
+                                        <td className="absolute ml-3 rounded p-2 bg-red-500 cursor-pointer hover:scale-105 duration-300 group" onClick={e => deleteVehicle(e, vehicle.id ?? '')}>
                                             <TrashIcon className="fill-white/90 hover:fill-white text-lg duration-300" />
-                                            <span className="deleteProduct-tooltip group-hover:scale-100 left-12 top-0" >Excluir</span>
                                         </td>
                                     )}
                                 </tr>
@@ -74,7 +80,7 @@ export const Table = () => {
                     </table>
 
                     {/* Table Paginaton  */}
-                    <Pagination totalCars={vehicles.length} carsPerPage={productsPerPage} setCurrentPage={setCurrentPage} currentPage={currentPage} />
+                    <Pagination totalCars={vehicles.length} carsPerPage={vehiclesPerPage} setCurrentPage={setCurrentPage} currentPage={currentPage} />
                 </div>
             )}
         </div>

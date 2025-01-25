@@ -11,7 +11,7 @@ const Pagination = ({ totalCars, carsPerPage, setCurrentPage, currentPage }: Tab
   return (
     <div>
         {pages.map((page, i) => (
-            <button className="paginationButtons" key={i} id={page === currentPage ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            <button className="paginationButtons p-2 bg-purple-500 rounded-lg text-white" key={i} id={page === currentPage ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
         ))}
     </div>
   )

@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useState } from "react";
-import { VehicleContextProps, VehicleProps } from "../@types/web";
+import { CarProps, MotoProps, VehicleContextProps, VehicleProps } from "../@types/web";
 import { api } from "../services/api";
 
 // Context + Provider
@@ -8,7 +8,11 @@ export const VehicleContext = createContext({} as VehicleContextProps)
 
 export function VehicleProvider({ children }: { children: ReactNode }) {
     const [countVehicles, setVehiclesCount] = useState<number | null>(null)
-    const [vehicles, setVehicle] = useState<VehicleProps[] | null>(null)
+    const [vehicle, setVehicle] = useState<VehicleProps>({ id: '0', modelo: '', fabricante: '', ano: 1900, preco: '' })
+    const [vehicles, setVehicles] = useState<VehicleProps[]>([])
+
+    const [carro, setCarro] = useState<CarProps>({ ...vehicle, quantidadePortas: 2, combustivel: 0 });
+	const [moto, setMoto] = useState<MotoProps>({ ...vehicle, cilindrada: 0 });
 
     const getVehiclesCount = async () => {
         const { data } = await api.get('/vehicles/count')
@@ -22,7 +26,7 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
 
 
     return (
-        <VehicleContext.Provider value={{ setVehicle, countVehicles, getVehicles, vehicles, setVehiclesCount }}>
+        <VehicleContext.Provider value={{ setVehicle, countVehicles, getVehicles, vehicle, setVehiclesCount, setVehicles, vehicles, setCarro, setMoto }}>
             {children}
         </VehicleContext.Provider>
     )

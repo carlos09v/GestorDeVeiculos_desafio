@@ -8,6 +8,12 @@ public class Carro {
      private int quantidade_portas;
      private TipoCombustivel tipo_combustivel;
 
+     public Carro(UUID id, UUID veiculoId, int quantidade_portas, TipoCombustivel tipo_combustivel) {
+          this.id = id;
+          this.veiculoId = veiculoId;
+          this.quantidade_portas = quantidade_portas;
+          this.tipo_combustivel = tipo_combustivel;
+     }
 
      // Getters e Setters
      public UUID getId() {

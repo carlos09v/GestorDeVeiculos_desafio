@@ -8,7 +8,18 @@ public class Veiculo {
     private String fabricante;
     private int ano;
     private double preco;
-    
+
+    public Veiculo(UUID id, String modelo, String fabricante, int ano, double preco) {
+        this.id = id;
+        this.modelo = modelo;
+        this.fabricante = fabricante;
+        this.ano = ano;
+        this.preco = preco;
+    }
+
+    public Veiculo() {}
+
+    // Getters and Setters
     public UUID getId() {
         return id;
     }

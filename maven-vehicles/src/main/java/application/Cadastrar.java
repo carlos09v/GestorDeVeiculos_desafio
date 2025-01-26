@@ -1,21 +1,22 @@
+package application;
+
+
 import dao.VeiculoDAO;
-import infra.ConnectionFactory;
 import model.Veiculo;
 
-public class Application {
-    
-    
+
+public class Cadastrar {
+
     public static void main(String[] args) {
         // ConnectionFactory.testConnection(); // Testar conexão
         VeiculoDAO dao = new VeiculoDAO();
 
         Veiculo veiculo = new Veiculo();
-        veiculo.setModelo("Calabresa");
+        veiculo.setModelo("Novo Veículo");
         veiculo.setFabricante("Honda");
-        veiculo.setAno(1950);
-        veiculo.setPreco(1254.33);
+        veiculo.setAno(2023);
+        veiculo.setPreco(50000);
 
-        Veiculo veiculoRetornado = dao.insert(veiculo);
-        System.out.println(veiculoRetornado.getId());
+        dao.insert(veiculo);
     }
 }

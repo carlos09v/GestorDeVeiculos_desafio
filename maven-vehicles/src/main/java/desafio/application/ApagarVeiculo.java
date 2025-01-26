@@ -1,7 +1,8 @@
-package application;
+package desafio.application;
 
 import java.util.UUID;
-import dao.VeiculoDAO;
+
+import desafio.dao.VeiculoDAO;
 
 
 public class ApagarVeiculo {

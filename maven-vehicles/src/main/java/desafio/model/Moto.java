@@ -1,4 +1,4 @@
-package model;
+package desafio.model;
 
 import java.util.UUID;
 

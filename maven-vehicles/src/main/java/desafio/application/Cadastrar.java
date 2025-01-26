@@ -1,8 +1,8 @@
-package application;
+package desafio.application;
 
 
-import dao.VeiculoDAO;
-import model.Veiculo;
+import desafio.dao.VeiculoDAO;
+import desafio.model.Veiculo;
 
 
 public class Cadastrar {

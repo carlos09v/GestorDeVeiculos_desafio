@@ -1,9 +1,9 @@
-package application;
+package desafio.application;
 
 import java.util.List;
 
-import dao.VeiculoDAO;
-import model.Veiculo;
+import desafio.dao.VeiculoDAO;
+import desafio.model.Veiculo;
 
 public class ListarVeiculos {
     public static void main(String[] args) {

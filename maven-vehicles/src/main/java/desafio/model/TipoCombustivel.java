@@ -1,4 +1,4 @@
-package model;
+package desafio.model;
 
 
 public enum TipoCombustivel {

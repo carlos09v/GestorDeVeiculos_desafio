@@ -2,28 +2,45 @@ package desafio.model;
 
 import java.util.UUID;
 
-public class Moto {
-    private UUID id;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import desafio.enums.VeiculosEnum.TipoVeiculosEnum;
+
+
+
+public class Moto extends Veiculo {
     private int cilindrada;
-    private UUID veiculoId;   // Chave estrangeira referenciando a tabela 'veiculos'
+
+    public Moto(UUID id, String modelo, String fabricante, double preco, int ano,
+            int cilindrada) {
+        super(id, modelo, fabricante, ano, preco, TipoVeiculosEnum.MOTO); // 'id' é o 'veiculo_id'
+        this.cilindrada = cilindrada;
+    }
+
+    public Moto() {};
+
+    // Métodos abstratos que as subclasses precisam implementar
+     // Implementação do método abstrato getInsertSQL
+     @Override
+     public String getInsertSQL() {
+          return "INSERT INTO moto (veiculo_id, quantidade_portas, tipo_combustivel) VALUES (?, ?, ?)";
+     }
+
+     // Implementação do método abstrato getInsertParameters
+     @Override
+     public Object[] getInsertParameters() {
+          return new Object[] {
+                    getId(),
+                    cilindrada
+          };
+     }
 
     // Getters e Setters
-    public UUID getId() {
-        return id;
-    }
-    public void setId(UUID id) {
-        this.id = id;
-    }
     public int getCilindrada() {
         return cilindrada;
     }
+
     public void setCilindrada(int cilindrada) {
         this.cilindrada = cilindrada;
-    }
-    public UUID getVeiculoId() {
-        return veiculoId;
-    }
-    public void setVeiculoId(UUID veiculoId) {
-        this.veiculoId = veiculoId;
     }
 }

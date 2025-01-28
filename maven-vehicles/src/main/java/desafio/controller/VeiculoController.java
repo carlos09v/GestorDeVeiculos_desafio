@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import desafio.exception.ErrorResponse;
 import desafio.model.Veiculo;
 import desafio.services.VeiculoService;
@@ -34,17 +33,21 @@ public class VeiculoController {
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody Veiculo veiculo) {
         try {
+            System.out.println("1 - Tipo de Veículo: " + veiculo.getTipoVeiculo());
+            System.out.println("2 - Objeto Veículo: " + veiculo);
             Veiculo veiculoSalvo = veiculoService.create(veiculo); // Chama o serviço para criar o veículo
-    
+
             // Retorna o veículo criado com status 201 Created
             return new ResponseEntity<>(veiculoSalvo, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // Caso ocorra algum erro de validação (ex: modelo vazio, preço inválido), retorna 400
+            // Caso ocorra algum erro de validação (ex: modelo vazio, preço inválido),
+            // retorna 400
             ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value());
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             // Para qualquer outro erro inesperado, retorna 500
-            ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -62,7 +65,8 @@ public class VeiculoController {
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             // Trata erros inesperados com status 500
-            ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -72,7 +76,7 @@ public class VeiculoController {
     public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody Veiculo veiculo) {
         try {
             Veiculo veiculoAtualizado = veiculoService.updatePartial(id, veiculo);
-    
+
             // Retorna o veículo atualizado com status 200 (OK)
             return ResponseEntity.ok(veiculoAtualizado);
         } catch (NoSuchElementException e) {
@@ -81,7 +85,8 @@ public class VeiculoController {
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             // Trata erros inesperados com status 500 (Internal Server Error)
-            ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -92,7 +97,7 @@ public class VeiculoController {
         try {
             veiculoService.delete(id); // Chama o Método que vai validar UUID e existência
             return ResponseEntity.status(HttpStatus.OK)
-                .body(new ErrorResponse("Removido com sucesso!", HttpStatus.OK.value()));
+                    .body(new ErrorResponse("Removido com sucesso!", HttpStatus.OK.value()));
         } catch (NoSuchElementException e) {
             // Caso o veículo não seja encontrado, retorna 404
             ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());

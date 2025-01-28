@@ -35,3 +35,7 @@ Contém apenas o necessário para executar aplicações Java.
     - Service: responsável pelas validações
     - DAO: responsável pela lógica com DB
     - Ou seja: Controller > Service > DAO/Repository
+
+## Testes:
+- Unitários: Testam métodos isolados, como insert, update, delete, findById e findAll.
+- de Integração: Validam se a aplicação se conecta corretamente ao banco de dados e executa operações reais, como inserção e recuperação de dados

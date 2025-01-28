@@ -27,6 +27,7 @@
         <tag/>
         <url/>
     </scm>
+    
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -63,6 +64,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
             <version>3.4.1</version>
+        </dependency>
+
+        <!-- Validação ENUM -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.17.0</version>            <!-- Verifique a versão mais recente -->
         </dependency>
     </dependencies>
 

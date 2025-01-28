@@ -2,42 +2,59 @@ package desafio.model;
 
 import java.util.UUID;
 
-public class Carro {
-     private UUID id;
-     private UUID veiculoId;   // Chave estrangeira referenciando a tabela 'veiculos'
-     private int quantidade_portas;
-     private TipoCombustivel tipo_combustivel;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-     public Carro(UUID id, UUID veiculoId, int quantidade_portas, TipoCombustivel tipo_combustivel) {
-          this.id = id;
-          this.veiculoId = veiculoId;
-          this.quantidade_portas = quantidade_portas;
-          this.tipo_combustivel = tipo_combustivel;
+import desafio.enums.CarrosEnum.QuantidadePortasEnum;
+import desafio.enums.CarrosEnum.TipoCombustivelEnum;
+import desafio.enums.VeiculosEnum.TipoVeiculosEnum;
+
+
+public class Carro extends Veiculo {
+     private QuantidadePortasEnum quantidadePortas;
+     private TipoCombustivelEnum tipoCombustivel;
+
+     public Carro(UUID id, String modelo, String fabricante, double preco, int ano,
+               QuantidadePortasEnum quantidadePortas, TipoCombustivelEnum tipoCombustivel) {
+          super(id, modelo, fabricante, ano, preco, TipoVeiculosEnum.CARRO); // 'id' é o 'veiculo_id'
+          this.quantidadePortas = quantidadePortas;
+          this.tipoCombustivel = tipoCombustivel;
+     }
+
+     public Carro() {
+     };
+
+
+     // Métodos abstratos que as subclasses precisam implementar
+     // Implementação do método abstrato getInsertSQL
+     @Override
+     public String getInsertSQL() {
+          return "INSERT INTO carro (veiculo_id, quantidade_portas, tipo_combustivel) VALUES (?, ?, ?)";
+     }
+
+     // Implementação do método abstrato getInsertParameters
+     @Override
+     public Object[] getInsertParameters() {
+          return new Object[] {
+                    getId(),
+                    quantidadePortas,
+                    tipoCombustivel.name() // Converte o enum para String
+          };
      }
 
      // Getters e Setters
-     public UUID getId() {
-          return id;
+     public QuantidadePortasEnum getQuantidade_portas() {
+          return quantidadePortas;
      }
-     public void setId(UUID id) {
-          this.id = id;
+
+     public void setQuantidade_portas(QuantidadePortasEnum quantidade_portas) {
+          this.quantidadePortas = quantidade_portas;
      }
-     public UUID getVeiculoId() {
-          return veiculoId;
+
+     public TipoCombustivelEnum getTipo_combustivel() {
+          return tipoCombustivel;
      }
-     public void setVeiculoId(UUID veiculoId) {
-          this.veiculoId = veiculoId;
-     }
-     public int getQuantidade_portas() {
-          return quantidade_portas;
-     }
-     public void setQuantidade_portas(int quantidade_portas) {
-          this.quantidade_portas = quantidade_portas;
-     }
-     public TipoCombustivel getTipo_combustivel() {
-          return tipo_combustivel;
-     }
-     public void setTipo_combustivel(TipoCombustivel tipo_combustivel) {
-          this.tipo_combustivel = tipo_combustivel;
+
+     public void setTipo_combustivel(TipoCombustivelEnum tipo_combustivel) {
+          this.tipoCombustivel = tipo_combustivel;
      }
 }

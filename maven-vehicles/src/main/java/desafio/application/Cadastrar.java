@@ -3,20 +3,23 @@ package desafio.application;
 
 import desafio.dao.VeiculoDAO;
 import desafio.model.Veiculo;
+import desafio.services.VeiculoService;
 
 
 public class Cadastrar {
 
-    public static void main(String[] args) {
-        // ConnectionFactory.testConnection(); // Testar conexão
-        VeiculoDAO dao = new VeiculoDAO();
+    // public static void main(String[] args) {
+    //     // ConnectionFactory.testConnection(); // Testar conexão
+    //     VeiculoDAO veiculoDAO = new VeiculoDAO();
+    //     VeiculoService veiculoService = new VeiculoService(veiculoDAO);
 
-        Veiculo veiculo = new Veiculo();
-        veiculo.setModelo("Novo Veículo");
-        veiculo.setFabricante("Honda");
-        veiculo.setAno(2023);
-        veiculo.setPreco(50000);
+    //     // Criar um objeto Veiculo apenas com os campos que deseja atualizar
+    //     Veiculo veiculo = new Veiculo();
+    //     veiculo.setModelo("Novo Modelo2");
+    //     veiculo.setAno(1965);
+    //     veiculo.setFabricante("Donatello");
+    //     veiculo.setPreco(196554.54);
 
-        dao.insert(veiculo);
-    }
+    //     veiculoService.create(veiculo);
+    // }
 }

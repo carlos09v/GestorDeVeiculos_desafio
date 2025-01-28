@@ -1,30 +1,21 @@
 package desafio.application;
-import java.util.Optional;
-import java.util.UUID;
 
 import desafio.dao.VeiculoDAO;
 import desafio.model.Veiculo;
+import desafio.services.VeiculoService;
 
 public class AtualizarVeiculo {
-    public static void main(String[] args) {
-        VeiculoDAO dao = new VeiculoDAO();
+    // public static void main(String[] args) {
+    //     VeiculoDAO veiculoDAO = new VeiculoDAO();
+    //     VeiculoService veiculoService = new VeiculoService(veiculoDAO);
 
-        UUID convertedId = UUID.fromString("88037b4d-2a8b-4704-90a3-76a56aac2c0e"); // // Convertendo a String para UUID
-        Optional<Veiculo> veiculoOptional = dao.findById(convertedId);
-        // Verificar se ID existe!
-        if (veiculoOptional.isPresent()) {
-            Veiculo veiculo = veiculoOptional.get();
+    //     String id = "88037b4d-2a8b-4704-90a3-76a56aac2c0e";
+    //     // Criar um objeto Veiculo apenas com os campos que deseja atualizar
+    //     Veiculo veiculoAtualizado = new Veiculo();
+    //     veiculoAtualizado.setModelo("Novo Modelo");
+    //     veiculoAtualizado.setAno(1965);
 
-            veiculo.setModelo("atualizado");
-            veiculo.setFabricante("atualizado");
-            veiculo.setAno(2020);
-            veiculo.setPreco(99999);
 
-            dao.update(veiculo);
-            System.out.println("Veículo atualizado!");
-        } else {
-            System.out.println("Veículo não encontrado!");
-        }
-
-    }
+    //     veiculoService.updatePartial(id, veiculoAtualizado);
+    // }
 }

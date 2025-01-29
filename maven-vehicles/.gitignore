@@ -1,6 +1,5 @@
-application.properties
-ConnectionFactory.java
-docker-compose.yml
+# application.properties
+# docker-compose.yml
 
 HELP.md
 target/

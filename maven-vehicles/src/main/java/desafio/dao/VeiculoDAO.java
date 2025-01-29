@@ -1,10 +1,10 @@
 package desafio.dao;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,34 +31,31 @@ public class VeiculoDAO implements IVeiculoDAO {
     // Cadastrar
     @Override
     public Veiculo insert(Veiculo veiculo) {
-        String sql = "INSERT INTO veiculos (modelo, fabricante, preco, ano, tipo_veiculo) VALUES (?, ?, ?, ?, ?) RETURNING id "; // Pra
-        // evitar
-        // SQLInjection
+        // Pra evitar SQLInjection
+        String sql = "INSERT INTO veiculos (modelo, fabricante, preco, ano, tipo_veiculo) VALUES (?, ?, ?, ?, ?) RETURNING id ";
+
         // Usando o JdbcTemplate para executar a query
         Object[] params = getInsertParameters(veiculo);
 
-        // Logar os parâmetros manualmente
         System.out.println("Parâmetros da query: " + Arrays.toString(params));
 
-        UUID veiculoId = jdbcTemplate.query(sql, params, rs -> {
-            if (rs.next()) {
-                return UUID.fromString(rs.getString("id"));
-            }
-            throw new RuntimeException("Nenhum ID retornado.");
-        });
+        UUID veiculoId = jdbcTemplate.queryForObject(sql, params, UUID.class);
         veiculo.setId(veiculoId);
-        System.out.println("1 - ID: " + veiculo.getId());
 
-        // if (veiculo instanceof Carro) {
-        // Carro carro = (Carro) veiculo;
-        // String sqlCarro = "INSERT INTO carros (veiculo_id, quantidade_portas,
-        // tipo_combustivel) VALUES (?, ?, ?)";
-        // jdbcTemplate.update(sqlCarro, carro.getInsertParameters());
-        // } else if (veiculo instanceof Moto) {
-        // Moto moto = (Moto) veiculo;
-        // String sqlMoto = "INSERT INTO motos (veiculo_id, cilindradas) VALUES (?, ?)";
-        // jdbcTemplate.update(sqlMoto, moto.getInsertParameters());
-        // }
+        if (veiculo instanceof Carro) {
+            Carro carro = (Carro) veiculo;
+            String sqlCarro = carro.getInsertSQL();
+
+            System.out.println("Parâmetros da query CARRO: " + Arrays.toString(carro.getInsertParameters()));
+
+            jdbcTemplate.update(sqlCarro, carro.getInsertParameters());
+            System.out.println("Carro inserido: " + carro);
+        } else if (veiculo instanceof Moto) {
+            Moto moto = (Moto) veiculo;
+            String sqlMoto = moto.getInsertSQL();
+            jdbcTemplate.update(sqlMoto, moto.getInsertParameters());
+            System.out.println("Moto inserida: " + moto);
+        }
 
         System.out.println("Veículo inserido com sucesso!");
 
@@ -68,20 +65,54 @@ public class VeiculoDAO implements IVeiculoDAO {
     // Atualizar Veiculo
     @Override
     public void update(Veiculo veiculo) {
-        String sql = "UPDATE veiculos SET modelo = ?, fabricante = ?, preco = ?, ano = ?, tipo_veiculo = ? WHERE id = ?";
+        // Montar o SQL dinamicamente
+        StringBuilder sql = new StringBuilder("UPDATE veiculos SET ");
+        List<Object> params = new ArrayList<>();
 
-        // Atualizando as colunas da tabela veiculos
-        jdbcTemplate.update(sql, getInsertParameters(veiculo), veiculo.getId());
+        // Adicionar parâmetros com base nos campos não nulos ou não zero
+        if (veiculo.getModelo() != null) {
+            sql.append("modelo = ?, ");
+            params.add(veiculo.getModelo());
+        }
+        if (veiculo.getFabricante() != null) {
+            sql.append("fabricante = ?, ");
+            params.add(veiculo.getFabricante());
+        }
+        if (veiculo.getPreco() > 0) {
+            sql.append("preco = ?, ");
+            params.add(veiculo.getPreco());
+        }
+        if (veiculo.getAno() != 0) {
+            sql.append("ano = ?, ");
+            params.add(veiculo.getAno());
+        }
+        if (veiculo.getTipoVeiculo() != null) {
+            sql.append("tipo_veiculo = ?, ");
+            params.add(veiculo.getTipoVeiculo());
+        }
+
+        // Remover a última vírgula e espaço
+        sql.delete(sql.length() - 2, sql.length());
+
+        // Adicionar a cláusula WHERE
+        sql.append(" WHERE id = ?");
+        params.add(veiculo.getId());
+
+        System.out.println("Parâmetros da query: " + Arrays.toString(params.toArray()));
+
+        // Atualizar no banco de dados
+        jdbcTemplate.update(sql.toString(), params.toArray());
 
         // Verifica se o veículo é um Carro e atualiza os parâmetros específicos
         if (veiculo instanceof Carro) {
             Carro carro = (Carro) veiculo;
-            String sqlCarro = "UPDATE carros SET quantidade_portas = ?, tipo_combustivel = ? WHERE veiculo_id = ?";
-            jdbcTemplate.update(sqlCarro, carro.getInsertParameters());
+            String sqlCarro = "UPDATE carro SET quantidade_portas = ?, tipo_combustivel = ? WHERE veiculo_id = ?";
+            jdbcTemplate.update(sqlCarro, carro.getQuantidade_portas(), carro.getTipo_combustivel(), carro.getId());
         } else if (veiculo instanceof Moto) {
             Moto moto = (Moto) veiculo;
-            String sqlMoto = "UPDATE motos SET categoria = ? WHERE veiculo_id = ?";
-            jdbcTemplate.update(sqlMoto, moto.getInsertParameters());
+            String sqlMoto = "UPDATE moto SET cilindradas = ? WHERE veiculo_id = ?";
+            System.out.println("Dados: " + moto);
+            jdbcTemplate.update(sqlMoto, moto.getCilindrada(), moto.getId());
         }
     }
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import desafio.enums.VeiculosEnum.TipoVeiculosEnum;
 
+
 public class Veiculo {
     private UUID id;
     private String modelo;
@@ -14,7 +15,7 @@ public class Veiculo {
     private int ano;
     private double preco;
     @JsonProperty("tipo_veiculo")
-    private TipoVeiculosEnum tipoVeiculo;
+    private String tipoVeiculo;
 
     public Veiculo(
             UUID id,
@@ -22,7 +23,7 @@ public class Veiculo {
             String fabricante,
             int ano,
             double preco,
-            TipoVeiculosEnum tipo_veiculo) {
+            String tipo_veiculo) {
         this.id = id;
         this.modelo = modelo;
         this.fabricante = fabricante;
@@ -44,9 +45,10 @@ public class Veiculo {
                 ", tipoVeiculo='" + tipoVeiculo + '\'' +
                 '}';
     }
+    
     @JsonIgnore
     public String getInsertSQL() {
-        return "INSERT INTO veiculs (modelo, fabricante, ano, preco, tipo_veiculo) VALUES (?, ?, ?, ?, ?)";
+        return "INSERT INTO veiculos (modelo, fabricante, ano, preco, tipo_veiculo) VALUES (?, ?, ?, ?, ?)";
     }
     @JsonIgnore
     public Object[] getInsertParameters() {
@@ -94,11 +96,15 @@ public class Veiculo {
         this.preco = preco;
     }
 
-    public TipoVeiculosEnum getTipoVeiculo() {
+    public String getTipoVeiculo() {
         return tipoVeiculo;
     }
 
-    public void setTipoVeiculo(TipoVeiculosEnum tipoVeiculo) {
-        this.tipoVeiculo = tipoVeiculo;
+    public void setTipoVeiculo(String tipoVeiculo) {
+        if (tipoVeiculo == null || tipoVeiculo.isEmpty()) {
+            throw new IllegalArgumentException("O tipo de veículo não pode ser nulo.");
+        }
+        System.out.println("Convertendo tipo de veículo: " + tipoVeiculo);
+        this.tipoVeiculo = TipoVeiculosEnum.fromValor(tipoVeiculo).name();
     }
 }

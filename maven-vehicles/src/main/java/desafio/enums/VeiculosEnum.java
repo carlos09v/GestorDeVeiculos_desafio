@@ -5,8 +5,7 @@ public class VeiculosEnum {
     public enum TipoVeiculosEnum {
         CARRO,
         MOTO;
-
-     
+    
         public static TipoVeiculosEnum fromValor(String value) {
             try {
                 return TipoVeiculosEnum.valueOf(value.toUpperCase());

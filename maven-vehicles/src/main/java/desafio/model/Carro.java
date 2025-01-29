@@ -2,12 +2,8 @@ package desafio.model;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import desafio.enums.CarrosEnum.QuantidadePortasEnum;
 import desafio.enums.CarrosEnum.TipoCombustivelEnum;
-import desafio.enums.VeiculosEnum.TipoVeiculosEnum;
-
 
 public class Carro extends Veiculo {
      private QuantidadePortasEnum quantidadePortas;
@@ -15,7 +11,7 @@ public class Carro extends Veiculo {
 
      public Carro(UUID id, String modelo, String fabricante, double preco, int ano,
                QuantidadePortasEnum quantidadePortas, TipoCombustivelEnum tipoCombustivel) {
-          super(id, modelo, fabricante, ano, preco, TipoVeiculosEnum.CARRO); // 'id' é o 'veiculo_id'
+          super(id, modelo, fabricante, ano, preco, "MOTO"); // 'id' é o 'veiculo_id'
           this.quantidadePortas = quantidadePortas;
           this.tipoCombustivel = tipoCombustivel;
      }
@@ -24,20 +20,21 @@ public class Carro extends Veiculo {
      };
 
 
-     // Métodos abstratos que as subclasses precisam implementar
-     // Implementação do método abstrato getInsertSQL
      @Override
      public String getInsertSQL() {
           return "INSERT INTO carro (veiculo_id, quantidade_portas, tipo_combustivel) VALUES (?, ?, ?)";
      }
 
-     // Implementação do método abstrato getInsertParameters
      @Override
      public Object[] getInsertParameters() {
+          if (getId() == null) {
+               throw new IllegalArgumentException("O ID não pode ser nulo.");
+           }
+           
           return new Object[] {
                     getId(),
-                    quantidadePortas,
-                    tipoCombustivel.name() // Converte o enum para String
+                    quantidadePortas != null ? quantidadePortas.getValor() : null,
+                    tipoCombustivel != null ? tipoCombustivel.name() : null // Converte o enum para String
           };
      }
 
@@ -46,15 +43,15 @@ public class Carro extends Veiculo {
           return quantidadePortas;
      }
 
-     public void setQuantidade_portas(QuantidadePortasEnum quantidade_portas) {
-          this.quantidadePortas = quantidade_portas;
+     public void setQuantidade_portas(String quantidade_portas) {
+          this.quantidadePortas = QuantidadePortasEnum.fromValor(quantidade_portas);
      }
 
      public TipoCombustivelEnum getTipo_combustivel() {
           return tipoCombustivel;
      }
 
-     public void setTipo_combustivel(TipoCombustivelEnum tipo_combustivel) {
-          this.tipoCombustivel = tipo_combustivel;
+     public void setTipo_combustivel(String tipo_combustivel) {
+          this.tipoCombustivel = TipoCombustivelEnum.fromValor(tipo_combustivel);
      }
 }

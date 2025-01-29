@@ -1,5 +1,8 @@
 package desafio.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public class CarrosEnum {
     public enum QuantidadePortasEnum {
         DUAS("2"),
@@ -14,10 +17,12 @@ public class CarrosEnum {
             this.valor = valor;
         }
 
+        @JsonValue
         public String getValor() {
             return valor;
         }
 
+        @JsonCreator
         public static QuantidadePortasEnum fromValor(String valor) {
             for (QuantidadePortasEnum portas : QuantidadePortasEnum.values()) {
                 if (portas.valor.equals(valor)) {

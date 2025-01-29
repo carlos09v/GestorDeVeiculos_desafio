@@ -19,16 +19,16 @@ public interface IVeiculoDAO {
 
     // Implementação default
     public default Object[] getInsertParameters(Veiculo veiculo) {
-        if (veiculo.getTipoVeiculo() == null) {
-            throw new IllegalArgumentException("O tipo do veículo não pode ser nulo.");
-        }
+        // if (veiculo.getTipoVeiculo() == null) {
+        //     throw new IllegalArgumentException("O tipo do veículo não pode ser nulo.");
+        // }
 
         return new Object[] {
             veiculo.getModelo(),
             veiculo.getFabricante(),
             veiculo.getPreco(),
             veiculo.getAno(),
-            veiculo.getTipoVeiculo().name()
+            veiculo.getTipoVeiculo()
         };
     }
 }

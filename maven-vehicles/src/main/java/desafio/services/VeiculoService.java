@@ -1,9 +1,11 @@
 package desafio.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import desafio.dao.IVeiculoDAO;
 import desafio.enums.CarrosEnum.QuantidadePortasEnum;
 import desafio.enums.CarrosEnum.TipoCombustivelEnum;
+import desafio.enums.VeiculosEnum.TipoVeiculosEnum;
 import desafio.model.Carro;
 import desafio.model.Moto;
 import desafio.model.Veiculo;
@@ -27,7 +30,27 @@ public class VeiculoService {
 
     // ----- CRUD
     // Cadastro de veículo
-    public Veiculo create(Veiculo veiculo) {
+    public Veiculo create(Map<String, Object> veiculoData) {
+        String tipoVeiculo = (String) veiculoData.get("tipo_veiculo");
+        if (tipoVeiculo == null || tipoVeiculo.isEmpty()) {
+            throw new IllegalArgumentException("O campo 'tipo_veiculo' é obrigatório.");
+        }
+
+        // Validação do tipo de veículo
+        validateTipoVeiculo(tipoVeiculo);
+
+        Veiculo veiculo;
+        if ("CARRO".equalsIgnoreCase(tipoVeiculo)) {
+            // Mapear para um Carro
+            veiculo = mapToCarro(veiculoData);
+        } else if ("MOTO".equalsIgnoreCase(tipoVeiculo)) {
+            // Mapear para uma Moto
+            veiculo = mapToMoto(veiculoData);
+        } else {
+            throw new IllegalArgumentException("Tipo de veículo inválido: " + tipoVeiculo);
+        }
+        veiculo.setTipoVeiculo(tipoVeiculo);  // Atribui o tipo do veículo corretamente
+
         validateVeiculo(veiculo); // Chama validações
         return veiculoDAO.insert(veiculo); // Chama o DAO para salvar
     }
@@ -46,23 +69,13 @@ public class VeiculoService {
         // Valida se o veículo existe antes de atualizar
         Veiculo veiculoExistente = validateVeiculoExists(uuid);
 
-        validateVeiculo(veiculoExistente);
+        // Valida Nulos e Atualiza os campos de forma parcial
+        updateFieldIfNotNull(veiculo.getModelo(), veiculoExistente::setModelo);
+        updateFieldIfNotNull(veiculo.getFabricante(), veiculoExistente::setFabricante);
+        updateFieldIfNotNull(veiculo.getPreco(), veiculoExistente::setPreco);
+        updateFieldIfNotNull(veiculo.getAno(), veiculoExistente::setAno);
+        updateFieldIfNotNull(veiculo.getTipoVeiculo(), veiculoExistente::setTipoVeiculo);
 
-        // Atualiza os campos de forma parcial
-        if (veiculo.getModelo() != null) {
-            veiculoExistente.setModelo(veiculo.getModelo());
-        }
-        if (veiculo.getFabricante() != null) {
-            veiculoExistente.setFabricante(veiculo.getFabricante());
-        }
-        if (veiculo.getPreco() > 0) {
-            veiculoExistente.setPreco(veiculo.getPreco());
-        }
-        if (veiculo.getAno() != 0) {
-            veiculoExistente.setAno(veiculo.getAno());
-        }
-
-    
         // Salva e retorna o veículo atualizado
         veiculoDAO.update(veiculoExistente);
         return veiculoExistente;
@@ -91,6 +104,22 @@ public class VeiculoService {
         }
         // Retorna o veículo caso ele exista
         return veiculoOptional.get();
+    }
+
+    // Validação do tipo de veículo
+    private void validateTipoVeiculo(String tipoVeiculo) {
+        try {
+            TipoVeiculosEnum.fromValor(tipoVeiculo); // Usando o método do Enum para validação
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Tipo de veículo inválido: " + tipoVeiculo);
+        }
+    }
+
+     // Método auxiliar para verificar se o campo é não nulo e válido antes de atualizar
+     private <T> void updateFieldIfNotNull(T fieldValue, Consumer<T> setter) {
+        if (fieldValue != null && !(fieldValue instanceof Integer && (Integer) fieldValue == 0)) {
+            setter.accept(fieldValue);
+        }
     }
 
     // Validar UUID recebido
@@ -140,8 +169,30 @@ public class VeiculoService {
 
             // Validação da categoria da moto
             if (moto.getCilindrada() <= 0) {
-                throw new IllegalArgumentException("A categoria da moto não pode ser vazia.");
+                throw new IllegalArgumentException("A Cilindrada da moto não pode ser vazia.");
             }
         }
+    }
+
+    // Mapeamento do Tipos de Veiculo
+    private Carro mapToCarro(Map<String, Object> data) {
+        Carro carro = new Carro();
+        carro.setModelo((String) data.get("modelo"));
+        carro.setFabricante((String) data.get("fabricante"));
+        carro.setPreco((Double) data.get("preco"));
+        carro.setAno((Integer) data.get("ano"));
+        carro.setQuantidade_portas((String) data.get("quantidade_portas"));
+        carro.setTipo_combustivel((String) data.get("tipo_combustivel"));
+        return carro;
+    }
+    
+    private Moto mapToMoto(Map<String, Object> data) {
+        Moto moto = new Moto();
+        moto.setModelo((String) data.get("modelo"));
+        moto.setFabricante((String) data.get("fabricante"));
+        moto.setPreco((Double) data.get("preco"));
+        moto.setAno((Integer) data.get("ano"));
+        moto.setCilindrada((Integer) data.get("cilindradas"));
+        return moto;
     }
 }

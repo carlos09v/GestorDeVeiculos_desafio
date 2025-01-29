@@ -9,6 +9,7 @@ import desafio.model.Veiculo;
 import desafio.services.VeiculoService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
@@ -31,21 +32,17 @@ public class VeiculoController {
 
     // Cadastrar Veículo
     @PostMapping
-    public ResponseEntity<Object> create(@RequestBody Veiculo veiculo) {
+    public ResponseEntity<Object> create(@RequestBody Map<String, Object> veiculo) {
         try {
-            System.out.println("1 - Tipo de Veículo: " + veiculo.getTipoVeiculo());
-            System.out.println("2 - Objeto Veículo: " + veiculo);
+            System.out.println(veiculo);
             Veiculo veiculoSalvo = veiculoService.create(veiculo); // Chama o serviço para criar o veículo
 
             // Retorna o veículo criado com status 201 Created
             return new ResponseEntity<>(veiculoSalvo, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // Caso ocorra algum erro de validação (ex: modelo vazio, preço inválido),
-            // retorna 400
             ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value());
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            // Para qualquer outro erro inesperado, retorna 500
             ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -60,11 +57,9 @@ public class VeiculoController {
 
             return ResponseEntity.ok(veiculo);
         } catch (NoSuchElementException e) {
-            // Retorna erro 404 caso o veículo não seja encontrado
             ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            // Trata erros inesperados com status 500
             ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -77,7 +72,6 @@ public class VeiculoController {
         try {
             Veiculo veiculoAtualizado = veiculoService.updatePartial(id, veiculo);
 
-            // Retorna o veículo atualizado com status 200 (OK)
             return ResponseEntity.ok(veiculoAtualizado);
         } catch (NoSuchElementException e) {
             // Retorna erro padronizado com status 404 (Not Found)
@@ -99,11 +93,9 @@ public class VeiculoController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ErrorResponse("Removido com sucesso!", HttpStatus.OK.value()));
         } catch (NoSuchElementException e) {
-            // Caso o veículo não seja encontrado, retorna 404
             ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            // Para outros erros, retorna 500
             ErrorResponse error = new ErrorResponse("Erro interno: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

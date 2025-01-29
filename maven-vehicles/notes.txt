@@ -12,6 +12,7 @@ Contém apenas o necessário para executar aplicações Java.
     - Irá gerar a pasta target\classes
 4. mvn install
     - Compila, Testa e depois gera uma versão no (Usuário/.m2/repository)
+5. mvn spring-boot:run
 
 ## Instalação de Dependências (Maven Repository):
 - ...
@@ -20,6 +21,7 @@ Contém apenas o necessário para executar aplicações Java.
     - Spring Web
     - Spring Data JPA (ñ utilizado) (usei JDBC)
     - Spring Starter JDBC
+    - Spring devtools (Live reload)
 
 ## Docker Compose (-> PostgreSQL):
 - docker-compose up -d

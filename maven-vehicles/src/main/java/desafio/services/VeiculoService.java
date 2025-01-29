@@ -1,5 +1,6 @@
 package desafio.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -139,7 +140,7 @@ public class VeiculoService {
         if (veiculo.getFabricante() == null || veiculo.getFabricante().isEmpty()) {
             throw new IllegalArgumentException("O fabricante do veículo não pode ser vazio.");
         }
-        if (veiculo.getAno() < 1886 || veiculo.getAno() > 2100) {
+        if (veiculo.getAno() < 1886 || veiculo.getAno() > LocalDate.now().getYear()) {
             throw new IllegalArgumentException("O ano do veículo é inválido.");
         }
         if (veiculo.getPreco() <= 0) {

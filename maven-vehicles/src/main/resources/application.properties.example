@@ -1,0 +1,20 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/minha_base
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+spring.datasource.driverClassName=org.postgresql.Driver
+spring.datasource.platform=postgresql
+# Exibir todas as queries SQL executadas
+spring.datasource.hikari.connection-test-query=SELECT 1
+logging.level.org.springframework.jdbc.core=DEBUG
+logging.level.org.hibernate.SQL=DEBUG
+
+
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.hibernate.show-sql=true
+
+
+spring.sql.init.modee=always
+spring.datasource.initialize=true
+spring.datasource.schema=classpath:/schema.sql
+spring.sql.init.continue-on-error=true

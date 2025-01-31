@@ -37,7 +37,7 @@ public class VeiculoDAO implements IVeiculoDAO {
         // Usando o JdbcTemplate para executar a query
         Object[] params = getInsertParameters(veiculo);
 
-        System.out.println("Parâmetros da query: " + Arrays.toString(params));
+        // System.out.println("Parâmetros da query: " + Arrays.toString(params));
 
         UUID veiculoId = jdbcTemplate.queryForObject(sql, params, UUID.class);
         veiculo.setId(veiculoId);
@@ -46,15 +46,14 @@ public class VeiculoDAO implements IVeiculoDAO {
             Carro carro = (Carro) veiculo;
             String sqlCarro = carro.getInsertSQL();
 
-            System.out.println("Parâmetros da query CARRO: " + Arrays.toString(carro.getInsertParameters()));
+            // System.out.println("Parâmetros da query CARRO: " +
+            // Arrays.toString(carro.getInsertParameters()));
 
             jdbcTemplate.update(sqlCarro, carro.getInsertParameters());
-            System.out.println("Carro inserido: " + carro);
         } else if (veiculo instanceof Moto) {
             Moto moto = (Moto) veiculo;
             String sqlMoto = moto.getInsertSQL();
             jdbcTemplate.update(sqlMoto, moto.getInsertParameters());
-            System.out.println("Moto inserida: " + moto);
         }
 
         System.out.println("Veículo inserido com sucesso!");
@@ -106,12 +105,43 @@ public class VeiculoDAO implements IVeiculoDAO {
         // Verifica se o veículo é um Carro e atualiza os parâmetros específicos
         if (veiculo instanceof Carro) {
             Carro carro = (Carro) veiculo;
-            String sqlCarro = "UPDATE carro SET quantidade_portas = ?, tipo_combustivel = ? WHERE veiculo_id = ?";
-            jdbcTemplate.update(sqlCarro, carro.getQuantidade_portas(), carro.getTipo_combustivel(), carro.getId());
+            StringBuilder sqlCarro = new StringBuilder("UPDATE carro SET ");
+            List<Object> paramsCarro = new ArrayList<>();
+
+            // Adiciona parâmetros de acordo com os campos não nulos
+            if (carro.getQuantidade_portas() != null) {
+                sqlCarro.append("quantidade_portas = ?, ");
+                paramsCarro.add(carro.getQuantidade_portas().getValor());
+            }
+            if (carro.getTipo_combustivel() != null) {
+                sqlCarro.append("tipo_combustivel = ?, ");
+                paramsCarro.add(carro.getTipo_combustivel().name());
+            }
+
+            // Remove a última vírgula e espaço
+            if (paramsCarro.size() > 0) {
+                sqlCarro.delete(sqlCarro.length() - 2, sqlCarro.length());
+            } else {
+                // Caso não haja nenhum campo para atualizar, não faz a query
+                System.out.println("Nenhum campo para atualizar no Carro.");
+                return; // Ou lançar uma exceção, dependendo da lógica do seu sistema
+            }
+
+            // Adiciona a cláusula WHERE
+            sqlCarro.append(" WHERE veiculo_id = ?");
+            paramsCarro.add(carro.getId());
+
+            System.out.println("SQL do Carro: " + sqlCarro.toString());
+            System.out.println("Parâmetros do Carro: " + Arrays.toString(paramsCarro.toArray()));
+
+            // Atualizar no banco de dados
+            jdbcTemplate.update(sqlCarro.toString(), paramsCarro.toArray());
         } else if (veiculo instanceof Moto) {
             Moto moto = (Moto) veiculo;
-            String sqlMoto = "UPDATE moto SET cilindradas = ? WHERE veiculo_id = ?";
-            System.out.println("Dados: " + moto);
+            String sqlMoto = "UPDATE moto SET cilindrada = ? WHERE veiculo_id = ?";
+
+            System.out.println("Cilindrada antes da atualização: " + moto.getCilindrada());
+            System.out.println("Atualizando moto - ID: " + moto.getId() + ", Cilindrada: " + moto.getCilindrada());
             jdbcTemplate.update(sqlMoto, moto.getCilindrada(), moto.getId());
         }
     }
@@ -129,7 +159,7 @@ public class VeiculoDAO implements IVeiculoDAO {
     @Override
     public List<Veiculo> findAll() {
         // Consulta para veículos (com junção nas tabelas de carros e motos)
-        String sql = "SELECT v.*, c.quantidade_portas, c.tipo_combustivel, m.cilindradas " +
+        String sql = "SELECT v.*, c.quantidade_portas, c.tipo_combustivel, m.cilindrada " +
                 "FROM veiculos v " +
                 "LEFT JOIN carro c ON v.id = c.veiculo_id " + // Junção com a tabela carros
                 "LEFT JOIN moto m ON v.id = m.veiculo_id"; // Junção com a tabela motos
@@ -142,8 +172,6 @@ public class VeiculoDAO implements IVeiculoDAO {
             double preco = rs.getDouble("preco");
             int ano = rs.getInt("ano");
             String tipoVeiculo = rs.getString("tipo_veiculo");
-
-            System.out.println("TipoVeiculo lido: " + tipoVeiculo);
 
             // Lógica para instanciar Carro ou Moto com base no tipo_veiculo
             if ("CARRO".equals(tipoVeiculo)) {
@@ -160,10 +188,9 @@ public class VeiculoDAO implements IVeiculoDAO {
                 if (tipoCombustivelString != null && !tipoCombustivelString.isBlank()) {
                     tipoCombustivel = TipoCombustivelEnum.valueOf(tipoCombustivelString);
                 }
-                return new Carro(id, modelo, fabricante, preco, ano, quantidadePortas,
-                        tipoCombustivel);
+                return new Carro(id, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel);
             } else if ("MOTO".equals(tipoVeiculo)) {
-                int cilindrada = rs.getInt("cilindradas");
+                int cilindrada = rs.getInt("cilindrada");
                 return new Moto(id, modelo, fabricante, preco, ano, cilindrada);
             }
 
@@ -178,7 +205,7 @@ public class VeiculoDAO implements IVeiculoDAO {
     // Get Veiculo by Id
     @Override
     public Optional<Veiculo> findById(UUID id) {
-        String sql = "SELECT v.*, c.quantidade_portas, c.tipo_combustivel, m.cilindradas " +
+        String sql = "SELECT v.*, c.quantidade_portas, c.tipo_combustivel, m.cilindrada " +
                 "FROM veiculos v " +
                 "LEFT JOIN carro c ON v.id = c.veiculo_id " + // Junção com a tabela carros
                 "LEFT JOIN moto m ON v.id = m.veiculo_id " + // Junção com a tabela motos
@@ -200,7 +227,7 @@ public class VeiculoDAO implements IVeiculoDAO {
                 TipoCombustivelEnum tipoCombustivel = TipoCombustivelEnum.valueOf(rs.getString("tipo_combustivel"));
                 return new Carro(pKey, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel);
             } else if ("MOTO".equals(tipoVeiculo)) {
-                int cilindrada = rs.getInt("cilindradas"); // Exemplo para moto, pode variar conforme sua modelagem
+                int cilindrada = rs.getInt("cilindrada"); // Exemplo para moto, pode variar conforme sua modelagem
                 return new Moto(pKey, modelo, fabricante, preco, ano, cilindrada);
             }
 

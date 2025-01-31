@@ -11,7 +11,7 @@ public class Carro extends Veiculo {
 
      public Carro(UUID id, String modelo, String fabricante, double preco, int ano,
                QuantidadePortasEnum quantidadePortas, TipoCombustivelEnum tipoCombustivel) {
-          super(id, modelo, fabricante, ano, preco, "MOTO"); // 'id' é o 'veiculo_id'
+          super(id, "CARRO", modelo, fabricante, ano, preco); // 'id' é o 'veiculo_id'
           this.quantidadePortas = quantidadePortas;
           this.tipoCombustivel = tipoCombustivel;
      }

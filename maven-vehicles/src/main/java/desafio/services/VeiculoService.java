@@ -50,7 +50,7 @@ public class VeiculoService {
         } else {
             throw new IllegalArgumentException("Tipo de veículo inválido: " + tipoVeiculo);
         }
-        veiculo.setTipoVeiculo(tipoVeiculo);  // Atribui o tipo do veículo corretamente
+        veiculo.setTipoVeiculo(tipoVeiculo); // Atribui o tipo do veículo corretamente
 
         validateVeiculo(veiculo); // Chama validações
         return veiculoDAO.insert(veiculo); // Chama o DAO para salvar
@@ -76,6 +76,21 @@ public class VeiculoService {
         updateFieldIfNotNull(veiculo.getPreco(), veiculoExistente::setPreco);
         updateFieldIfNotNull(veiculo.getAno(), veiculoExistente::setAno);
         updateFieldIfNotNull(veiculo.getTipoVeiculo(), veiculoExistente::setTipoVeiculo);
+
+        if (veiculoExistente instanceof Carro && veiculo instanceof Carro) {
+            Carro carroExistente = (Carro) veiculoExistente;
+            Carro carroAtualizado = (Carro) veiculo;
+
+            updateQuantidadePortasIfNotNull(carroAtualizado.getQuantidade_portas(),
+                    carroExistente::setQuantidade_portas);
+            updateTipoCombustivelIfNotNull(carroAtualizado.getTipo_combustivel(), carroExistente::setTipo_combustivel);
+        } else if (veiculoExistente instanceof Moto && veiculo instanceof Moto) {
+            Moto motoExistente = (Moto) veiculoExistente;
+            Moto motoAtualizada = (Moto) veiculo;
+
+            System.out.println("Cilindrada antes da atualização no Service: " + motoAtualizada.getCilindrada());
+            updateFieldIfNotNull(motoAtualizada.getCilindrada(), motoExistente::setCilindrada);
+        }
 
         // Salva e retorna o veículo atualizado
         veiculoDAO.update(veiculoExistente);
@@ -116,11 +131,20 @@ public class VeiculoService {
         }
     }
 
-     // Método auxiliar para verificar se o campo é não nulo e válido antes de atualizar
-     private <T> void updateFieldIfNotNull(T fieldValue, Consumer<T> setter) {
-        if (fieldValue != null && !(fieldValue instanceof Integer && (Integer) fieldValue == 0)) {
-            setter.accept(fieldValue);
-        }
+    // Método auxiliar para verificar se o campo é não nulo e válido antes de
+    // atualizar
+    private <T> void updateFieldIfNotNull(T fieldValue, Consumer<T> setter) {
+        // Permite que 0 seja um valor válido, sem ignorá-lo
+        if (fieldValue != null) setter.accept(fieldValue); 
+    }
+
+    private void updateQuantidadePortasIfNotNull(QuantidadePortasEnum fieldValue, Consumer<String> setter) {
+        if (fieldValue != null) setter.accept(fieldValue.getValor()); // Converte Enum para String antes de chamar o setter
+        
+    }
+
+    private void updateTipoCombustivelIfNotNull(TipoCombustivelEnum fieldValue, Consumer<String> setter) {
+        if (fieldValue != null) setter.accept(fieldValue.name()); // Converte Enum para String antes de chamar o setter
     }
 
     // Validar UUID recebido
@@ -186,14 +210,14 @@ public class VeiculoService {
         carro.setTipo_combustivel((String) data.get("tipo_combustivel"));
         return carro;
     }
-    
+
     private Moto mapToMoto(Map<String, Object> data) {
         Moto moto = new Moto();
         moto.setModelo((String) data.get("modelo"));
         moto.setFabricante((String) data.get("fabricante"));
         moto.setPreco((Double) data.get("preco"));
         moto.setAno((Integer) data.get("ano"));
-        moto.setCilindrada((Integer) data.get("cilindradas"));
+        moto.setCilindrada((Integer) data.get("cilindrada"));
         return moto;
     }
 }

@@ -7,7 +7,7 @@ public class Moto extends Veiculo {
 
     public Moto(UUID id, String modelo, String fabricante, double preco, int ano,
             int cilindrada) {
-        super(id, modelo, fabricante, ano, preco, "CARRO"); // 'id' é o 'veiculo_id'
+        super(id, "MOTO", modelo, fabricante, ano, preco); // 'id' é o 'veiculo_id'
         this.cilindrada = cilindrada;
     }
 
@@ -16,7 +16,7 @@ public class Moto extends Veiculo {
 
      @Override
      public String getInsertSQL() {
-          return "INSERT INTO moto (veiculo_id, cilindradas) VALUES (?, ?)";
+          return "INSERT INTO moto (veiculo_id, cilindrada) VALUES (?, ?)";
      }
 
      @Override
@@ -37,6 +37,7 @@ public class Moto extends Veiculo {
     }
 
     public void setCilindrada(int cilindrada) {
+        System.out.println("Setando cilindrada: " + cilindrada);
         this.cilindrada = cilindrada;
     }
 }

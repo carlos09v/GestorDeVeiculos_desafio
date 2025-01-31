@@ -19,11 +19,11 @@ public class Veiculo {
 
     public Veiculo(
             UUID id,
+            String tipo_veiculo,
             String modelo,
             String fabricante,
             int ano,
-            double preco,
-            String tipo_veiculo) {
+            double preco) {
         this.id = id;
         this.modelo = modelo;
         this.fabricante = fabricante;

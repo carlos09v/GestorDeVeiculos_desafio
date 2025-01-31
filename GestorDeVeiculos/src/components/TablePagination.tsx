@@ -9,9 +9,9 @@ const Pagination = ({ totalCars, carsPerPage, setCurrentPage, currentPage }: Tab
         pages.push(i)
     }
   return (
-    <div>
+    <div className="flex gap-2">
         {pages.map((page, i) => (
-            <button className="paginationButtons p-2 bg-purple-500 rounded-lg text-white" key={i} id={page === currentPage ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            <button className="p-2 bg-purple-500 hover:bg-purple-700 rounded-md text-white transition-colors" key={i} id={page === currentPage ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
         ))}
     </div>
   )

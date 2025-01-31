@@ -54,6 +54,7 @@ export const Table = () => {
                             <tr className="text-xl bg-black text-slate-100">
                                 <th className="text-lg">No.</th>
                                 <th></th>
+                                <th>Tipo</th>
                                 <th>Modelo</th>
                                 <th>Fabricante</th>
                                 <th>Ano</th>
@@ -65,6 +66,7 @@ export const Table = () => {
                                 <tr key={i} className='font-semibold'>
                                     <td className="text-center">{i + 1}</td>
                                     <td className="text-center">{new Date(vehicle.addedAt ?? new Date()).toLocaleDateString()}</td>
+                                    <td className="text-center">{vehicle.tipo_veiculo}</td>
                                     <td className="text-left">{vehicle.modelo}</td>
                                     <td className="text-left">{vehicle.fabricante}</td>
                                     <td className="text-center">{vehicle.ano}</td>

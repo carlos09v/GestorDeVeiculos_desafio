@@ -22,6 +22,7 @@
     "react-toastify": "^11.0.3"
   },
   "devDependencies": {
+    "@types/node": "^22.13.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
@@ -35,7 +36,7 @@
   },
   "_commands": {
     "0": "npm create vite@latest",
-    "1": "npm install -D tailwindcss postcss autoprefixer",
+    "1": "npm install -D tailwindcss postcss autoprefixer @types/node",
     "2": "npx tailwindcss init -p",
     "3": "npm i axios framer-motion clsx",
     "4": "npm i react-toastify react-router-dom @radix-ui/react-dialog @radix-ui/react-icons @radix-ui/react-separator"

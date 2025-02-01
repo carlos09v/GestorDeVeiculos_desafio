@@ -1,5 +1,7 @@
 package desafio.model;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import desafio.enums.CarrosEnum.QuantidadePortasEnum;
@@ -9,9 +11,9 @@ public class Carro extends Veiculo {
      private QuantidadePortasEnum quantidadePortas;
      private TipoCombustivelEnum tipoCombustivel;
 
-     public Carro(UUID id, String modelo, String fabricante, double preco, int ano,
-               QuantidadePortasEnum quantidadePortas, TipoCombustivelEnum tipoCombustivel) {
-          super(id, "CARRO", modelo, fabricante, ano, preco); // 'id' é o 'veiculo_id'
+     public Carro(UUID id, String modelo, String fabricante, BigDecimal preco, int ano,
+               QuantidadePortasEnum quantidadePortas, TipoCombustivelEnum tipoCombustivel,  LocalDateTime createdAt) {
+          super(id, "CARRO", modelo, fabricante, ano, preco, createdAt); // 'id' é o 'veiculo_id'
           this.quantidadePortas = quantidadePortas;
           this.tipoCombustivel = tipoCombustivel;
      }

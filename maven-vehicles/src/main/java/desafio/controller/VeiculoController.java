@@ -8,6 +8,7 @@ import desafio.exception.ErrorResponse;
 import desafio.model.Veiculo;
 import desafio.services.VeiculoService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -34,11 +35,15 @@ public class VeiculoController {
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody Map<String, Object> veiculo) {
         try {
-            System.out.println(veiculo);
+            // System.out.println(veiculo);
             Veiculo veiculoSalvo = veiculoService.create(veiculo); // Chama o serviço para criar o veículo
 
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Veículo criado com sucesso!");
+            response.put("veiculo", veiculoSalvo); // Inclui o veículo salvo no JSON
+
             // Retorna o veículo criado com status 201 Created
-            return new ResponseEntity<>(veiculoSalvo, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value());
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);

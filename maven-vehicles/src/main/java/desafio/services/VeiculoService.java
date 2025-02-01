@@ -1,5 +1,6 @@
 package desafio.services;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,23 @@ public class VeiculoService {
     // Cadastro de veículo
     public Veiculo create(Map<String, Object> veiculoData) {
         String tipoVeiculo = (String) veiculoData.get("tipo_veiculo");
+
+        if (veiculoData.containsKey("preco")) {
+            Object preco = veiculoData.get("preco");
+            
+            // Se o preco for Double ou Float, converte para BigDecimal
+            if (preco instanceof Double || preco instanceof Float) {
+                veiculoData.put("preco", BigDecimal.valueOf(((Number) preco).doubleValue()));
+            } else if (preco instanceof String) {
+                // Caso o preco venha como String, tenta convertê-lo para Double e depois para BigDecimal
+                try {
+                    veiculoData.put("preco", new BigDecimal((String) preco));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("O preço fornecido não é válido.");
+                }
+            }
+        }
+
         if (tipoVeiculo == null || tipoVeiculo.isEmpty()) {
             throw new IllegalArgumentException("O campo 'tipo_veiculo' é obrigatório.");
         }
@@ -167,7 +185,7 @@ public class VeiculoService {
         if (veiculo.getAno() < 1886 || veiculo.getAno() > LocalDate.now().getYear()) {
             throw new IllegalArgumentException("O ano do veículo é inválido.");
         }
-        if (veiculo.getPreco() <= 0) {
+        if (veiculo.getPreco().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O preço do veículo deve ser maior que zero.");
         }
 
@@ -204,7 +222,7 @@ public class VeiculoService {
         Carro carro = new Carro();
         carro.setModelo((String) data.get("modelo"));
         carro.setFabricante((String) data.get("fabricante"));
-        carro.setPreco((Double) data.get("preco"));
+        carro.setPreco((BigDecimal) data.get("preco"));
         carro.setAno((Integer) data.get("ano"));
         carro.setQuantidade_portas((String) data.get("quantidade_portas"));
         carro.setTipo_combustivel((String) data.get("tipo_combustivel"));
@@ -215,7 +233,7 @@ public class VeiculoService {
         Moto moto = new Moto();
         moto.setModelo((String) data.get("modelo"));
         moto.setFabricante((String) data.get("fabricante"));
-        moto.setPreco((Double) data.get("preco"));
+        moto.setPreco((BigDecimal) data.get("preco"));
         moto.setAno((Integer) data.get("ano"));
         moto.setCilindrada((Integer) data.get("cilindrada"));
         return moto;

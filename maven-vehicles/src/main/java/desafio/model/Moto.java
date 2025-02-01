@@ -1,13 +1,15 @@
 package desafio.model;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Moto extends Veiculo {
     private int cilindrada;
 
-    public Moto(UUID id, String modelo, String fabricante, double preco, int ano,
-            int cilindrada) {
-        super(id, "MOTO", modelo, fabricante, ano, preco); // 'id' é o 'veiculo_id'
+    public Moto(UUID id, String modelo, String fabricante, BigDecimal preco, int ano,
+            int cilindrada,  LocalDateTime createdAt) {
+        super(id, "MOTO", modelo, fabricante, ano, preco, createdAt); // 'id' é o 'veiculo_id'
         this.cilindrada = cilindrada;
     }
 

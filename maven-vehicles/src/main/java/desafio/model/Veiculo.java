@@ -1,5 +1,7 @@
 package desafio.model;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,9 +15,10 @@ public class Veiculo {
     private String modelo;
     private String fabricante;
     private int ano;
-    private double preco;
+    private BigDecimal preco;
     @JsonProperty("tipo_veiculo")
     private String tipoVeiculo;
+    private LocalDateTime createdAt;
 
     public Veiculo(
             UUID id,
@@ -23,13 +26,15 @@ public class Veiculo {
             String modelo,
             String fabricante,
             int ano,
-            double preco) {
+            BigDecimal preco,
+            LocalDateTime createdAt) {
         this.id = id;
         this.modelo = modelo;
         this.fabricante = fabricante;
         this.ano = ano;
         this.preco = preco;
         this.tipoVeiculo = tipo_veiculo;
+        this.createdAt = createdAt;
     }
 
     public Veiculo() {}
@@ -64,6 +69,14 @@ public class Veiculo {
         this.id = id;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public String getModelo() {
         return modelo;
     }
@@ -88,11 +101,11 @@ public class Veiculo {
         this.ano = ano;
     }
 
-    public double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 

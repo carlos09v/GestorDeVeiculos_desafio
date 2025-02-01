@@ -1,5 +1,8 @@
 package desafio.dao;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,7 +80,7 @@ public class VeiculoDAO implements IVeiculoDAO {
             sql.append("fabricante = ?, ");
             params.add(veiculo.getFabricante());
         }
-        if (veiculo.getPreco() > 0) {
+        if (veiculo.getPreco().compareTo(BigDecimal.ZERO) > 0) {
             sql.append("preco = ?, ");
             params.add(veiculo.getPreco());
         }
@@ -169,9 +172,17 @@ public class VeiculoDAO implements IVeiculoDAO {
             UUID id = UUID.fromString(rs.getString("id"));
             String modelo = rs.getString("modelo");
             String fabricante = rs.getString("fabricante");
-            double preco = rs.getDouble("preco");
+            BigDecimal preco = rs.getBigDecimal("preco");
             int ano = rs.getInt("ano");
             String tipoVeiculo = rs.getString("tipo_veiculo");
+            Timestamp createdAtTimestamp = rs.getTimestamp("created_at");
+
+            LocalDateTime createdAt = null;
+            if (createdAtTimestamp != null) {
+                createdAt = createdAtTimestamp.toLocalDateTime(); // Para LocalDateTime
+                // ou
+                // Date createdAt = new Date(createdAtTimestamp.getTime()); // Para Date
+            }
 
             // Lógica para instanciar Carro ou Moto com base no tipo_veiculo
             if ("CARRO".equals(tipoVeiculo)) {
@@ -188,10 +199,10 @@ public class VeiculoDAO implements IVeiculoDAO {
                 if (tipoCombustivelString != null && !tipoCombustivelString.isBlank()) {
                     tipoCombustivel = TipoCombustivelEnum.valueOf(tipoCombustivelString);
                 }
-                return new Carro(id, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel);
+                return new Carro(id, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel, createdAt);
             } else if ("MOTO".equals(tipoVeiculo)) {
                 int cilindrada = rs.getInt("cilindrada");
-                return new Moto(id, modelo, fabricante, preco, ano, cilindrada);
+                return new Moto(id, modelo, fabricante, preco, ano, cilindrada, createdAt);
             }
 
             // Retorna null ou lança exceção se o tipo de veículo não for encontrado
@@ -216,19 +227,27 @@ public class VeiculoDAO implements IVeiculoDAO {
             UUID pKey = UUID.fromString(rs.getString("id"));
             String modelo = rs.getString("modelo");
             String fabricante = rs.getString("fabricante");
-            double preco = rs.getDouble("preco");
+            BigDecimal preco = rs.getBigDecimal("preco");
             int ano = rs.getInt("ano");
             String tipoVeiculo = rs.getString("tipo_veiculo"); // Obtendo o tipo de veículo
+            Timestamp createdAtTimestamp = rs.getTimestamp("created_at");
+
+            LocalDateTime createdAt = null;
+            if (createdAtTimestamp != null) {
+                createdAt = createdAtTimestamp.toLocalDateTime(); // Para LocalDateTime
+                // ou
+                // Date createdAt = new Date(createdAtTimestamp.getTime()); // Para Date
+            }
 
             // Instancia Carro ou Moto dependendo do tipo de veículo
             if ("CARRO".equals(tipoVeiculo)) {
                 QuantidadePortasEnum quantidadePortas = QuantidadePortasEnum
                         .fromValor(rs.getString("quantidade_portas"));
                 TipoCombustivelEnum tipoCombustivel = TipoCombustivelEnum.valueOf(rs.getString("tipo_combustivel"));
-                return new Carro(pKey, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel);
+                return new Carro(pKey, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel, createdAt);
             } else if ("MOTO".equals(tipoVeiculo)) {
                 int cilindrada = rs.getInt("cilindrada"); // Exemplo para moto, pode variar conforme sua modelagem
-                return new Moto(pKey, modelo, fabricante, preco, ano, cilindrada);
+                return new Moto(pKey, modelo, fabricante, preco, ano, cilindrada, createdAt);
             }
 
             return null; // Caso o tipo de veículo não seja reconhecido

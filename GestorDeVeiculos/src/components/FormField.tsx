@@ -1,5 +1,5 @@
 import { ChangeEvent } from "react"
-import { CarProps, CombustivelEnum, MotoProps, VehicleType } from "../@types/web"
+import { CarProps, MotoProps } from "../@types/web"
 import clsx from "clsx";
 
 interface FormFieldProps {
@@ -7,12 +7,12 @@ interface FormFieldProps {
   label?: string;
   placeholder?: string;
 
-  vehicleDataRegister: (CarProps & MotoProps);
-  setVehicleDataRegister: React.Dispatch<React.SetStateAction<(CarProps & MotoProps)>>
+  setVehicle: (value: React.SetStateAction<(CarProps & MotoProps)>) => void 
+  vehicle: (CarProps & MotoProps); 
 }
 
 
-export const FormField = ({ typeNumber, placeholder, label, setVehicleDataRegister, vehicleDataRegister }: FormFieldProps) => {
+export const FormField = ({ typeNumber, placeholder, label, setVehicle, vehicle }: FormFieldProps) => {
 
   const fieldMapVehicle: Record<number, keyof (CarProps & MotoProps)> = {
     1: "modelo",
@@ -31,11 +31,18 @@ export const FormField = ({ typeNumber, placeholder, label, setVehicleDataRegist
     const { name, value } = e.target;
 
     // Se for campo numérico, converte para número, senão mantém string
-    const newValue = value === "" ? "" : isNaN(Number(value)) ? value : Number(value) || "";
+    let newValue = value === "" ? "" : isNaN(Number(value)) ? value : Number(value) || "";
+
+    if (name === 'preco') {
+      // Converte para float e garante duas casas decimais
+      newValue = parseFloat(value).toFixed(2); // Converte para float e fixa para 2 casas decimais
+      newValue = parseFloat(newValue);
+    }
+  
 
     // Se a mudança for no tipo de veículo (campo select de categoria)
     if (name === 'categoryOptions') {
-      setVehicleDataRegister(prev => {
+      setVehicle(prev => {
         // Atualiza o tipo de veículo e limpa campos específicos
         const tipo_veiculo = value.toUpperCase() as 'CARRO' | 'MOTO';
 
@@ -45,9 +52,14 @@ export const FormField = ({ typeNumber, placeholder, label, setVehicleDataRegist
           ...(tipo_veiculo === 'CARRO' ? { cilindrada: null } : { quantidade_portas: null, tipo_combustivel: null }),
         };
       });
-    } else {
+    } else if (name === 'quantidade_portas') {
+      setVehicle(prev => ({
+        ...prev,
+        quantidade_portas: value === '' ? null : value as "2" | "3" | "4" | "5" | "6", // Mantém o valor como string (exemplo: "2", "3", etc.)
+      })); 
+    }else {
       // Se for outro campo (input de texto ou número), atualiza normalmente
-      setVehicleDataRegister(prev => ({
+      setVehicle(prev => ({
         ...prev,
         [vehicleField]: newValue, // Atualiza o campo específico com o novo valor
       }));
@@ -64,18 +76,19 @@ export const FormField = ({ typeNumber, placeholder, label, setVehicleDataRegist
             id={`input-${typeNumber}`} // Garante um ID único para cada tipo
             name={vehicleField}
             placeholder={placeholder}
-            type={typeNumber === 3 || typeNumber === 4 || typeNumber === 6 ? "number" : "text"} // Torna o campo 'Ano' numérico
+            type={typeNumber === 3 || typeNumber === 4 || typeNumber === 6 || typeNumber === 8 ? "number" : "text"} // Torna o campo 'Ano' numérico
             maxLength={typeNumber === 1 || typeNumber === 2 ? 20 : undefined} // Limita o comprimento para o campo 'Ano'
-            min={typeNumber === 3 ? 1886 : typeNumber === 4 ? 0 : undefined} // Mínimo depende de typeNumber
+            min={typeNumber === 3 ? 1886 : 0} // Mínimo depende de typeNumber
             max={typeNumber === 3 ? new Date().getFullYear() : undefined}
+            step={typeNumber === 4 ? 0.01 : undefined}
             className={clsx(
               "p-2 border-2 border-black rounded mb-4 w-full", // Padrão: ocupa largura total
               typeNumber === 3 || typeNumber === 4 ? "!w-1/3" : ""
             )}
             onChange={handleChange}
             value={
-              vehicleDataRegister[vehicleField] !== undefined && vehicleDataRegister[vehicleField] !== null
-                ? vehicleDataRegister[vehicleField].toString()
+              vehicle[vehicleField] !== undefined && vehicle[vehicleField] !== null
+                ? vehicle[vehicleField].toString()
                 : "" // Use o valor direto ou uma string vazia
             }
           />
@@ -85,30 +98,31 @@ export const FormField = ({ typeNumber, placeholder, label, setVehicleDataRegist
 
       {/* ---- Categoria */}
       {typeNumber == 5 && (
-        <select className="rounded p-2 border-2 border-black" name="categoryOptions" onChange={handleChange} value={vehicleDataRegister.tipo_veiculo ?? ''}>
+        <select className="rounded p-2 border-2 border-black" name="categoryOptions" onChange={handleChange} value={vehicle.tipo_veiculo ?? ''}>
           <option className='text-center'>--- ⬇️ ⬇️ ---</option>
           <option value="CARRO">🚙 Carro</option>
           <option value="MOTO">🛵 Moto</option>
         </select>
       )}
 
-      {typeNumber === 6 && vehicleDataRegister.tipo_veiculo === "CARRO" && (
+      {typeNumber === 6 && vehicle.tipo_veiculo === "CARRO" && (
         <select
-          className="p-2 border-2 border-black rounded"
-          onChange={handleChange}
-          value={vehicleDataRegister.quantidade_portas ?? ''}
-        >
-          <option value=''>Selecione</option>
-          <option value={2}>2</option>
-          <option value={3}>3</option>
-          <option value={4}>4</option>
-          <option value={5}>5</option>
-          <option value={6}>6</option>
-        </select>
+        className="p-2 border-2 border-black rounded"
+        onChange={handleChange}
+        value={vehicle.quantidade_portas ?? ''}
+        name="quantidade_portas"  // Definir o name como 'quantidade_portas'
+      >
+        <option value=''>Selecione</option>
+        <option value='2'>2</option>
+        <option value='3'>3</option>
+        <option value='4'>4</option>
+        <option value='5'>5</option>
+        <option value='6'>6</option>
+      </select>
       )}
 
-      {typeNumber == 7 && vehicleDataRegister.tipo_veiculo === "CARRO" && (
-        <select className="rounded p-2 border-2 border-black" name="tipo_combustivel" onChange={handleChange} value={vehicleDataRegister.tipo_combustivel ?? ''}>
+      {typeNumber == 7 && vehicle.tipo_veiculo === "CARRO" && (
+        <select className="rounded p-2 border-2 border-black" name="tipo_combustivel" onChange={handleChange} value={vehicle.tipo_combustivel ?? ''}>
           <option className='text-center' value=''>--- ⛽ ---</option>
           <option value="GASOLINA">Gasolina</option>
           <option value="ETANOL">Etanol</option>

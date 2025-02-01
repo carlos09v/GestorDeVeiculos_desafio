@@ -8,8 +8,8 @@ import { FormField } from "../FormField";
 import { CarProps, CombustivelEnum, MotoProps } from "../../@types/web";
 
 const CadastrarVeiculoModalButton = () => {
-	const [loading, setLoading] = useState(false);
 	const { vehicle, setVehicle, setVehicles, isCar, isMoto, initialVehicle } = useContext(VehicleContext);
+	const [modalOpen, setModalOpen] = useState(false);
 
 	// Define os campos do formulário com base na categoria
 	const formFields = [
@@ -21,8 +21,8 @@ const CadastrarVeiculoModalButton = () => {
 
 	// Adiciona campos específicos para Carro
 	const carroFields = [
-		{ type: 6, label: "Quantidade de Portas:", placeholder: "" },
-		{ type: 7, label: "Combustível:", placeholder: "" },
+		{ type: 6, label: "Quantidade de Portas:" },
+		{ type: 7, label: "Combustível:", },
 	];
 
 	// Adiciona campos específicos para Moto
@@ -33,51 +33,16 @@ const CadastrarVeiculoModalButton = () => {
 	// Cadastrar Veículo
 	const handleVehicleRegister = async (e: FormEvent) => {
 		e.preventDefault();
-		const anoAtual = new Date().getFullYear(); // Pega o ano atual
+		if (!validateForm()) return // validar
 
-		// Validação de Categoria
-		if (!vehicle.tipo_veiculo) return toast.warn('Selecione um tipo de veículo!');
-
-		if (vehicle.modelo && vehicle.fabricante && vehicle.ano && vehicle.preco) {
-			if (vehicle.ano < 1886 || vehicle.ano > anoAtual) return toast.warn(`Insira um ano válido [1886-${anoAtual}]`);
-			if (!Number(vehicle.preco)) return toast.warn(`Insira um preço válido!`);
-
-			// Validação de propriedades específicas
-			if (vehicle.tipo_veiculo === 'CARRO') {
-				if (isCar(vehicle)) { // Verifica se o veículo é um Carro
-					if (!vehicle.quantidade_portas) {
-						return toast.warn('Informe a quantidade de portas para o carro!');
-					}
-					if (!vehicle.tipo_combustivel || !Object.values(CombustivelEnum).includes(vehicle.tipo_combustivel)) {
-						return toast.warn('Informe o tipo de combustível do carro!');
-					}
-				} else return toast.warn('O tipo de veículo não corresponde à categoria "Carro"');
-			} else if (vehicle.tipo_veiculo === 'MOTO') {
-				if (isMoto(vehicle)) { // Verifica se o veículo é uma Moto
-					if (!vehicle.cilindrada) {
-						return toast.warn('Informe a cilindrada da moto!');
-					}
-				} else return toast.warn('O tipo de veículo não corresponde à categoria "Moto"');
-			} else return toast.warn('Categoria inválida!'); // Caso a categoria não seja "Carro" ou "Moto"
-
-
-			setVehicles((prevVehicles) => [...prevVehicles, vehicle]); // Adiciona o veículo na lista de Veículos(tabela)
-			console.log('Enviando Veiculo:', vehicle)
-		} else return toast.warn('Preencha todos os campos!');
-
-		setLoading(true);
 		try {
-			console.log(vehicle);
 			// Criação do objeto com os campos principais
-			const vehicleData: (CarProps & MotoProps) = {
+			const vehicleData: Partial<CarProps & MotoProps> = {
 				modelo: vehicle.modelo,
 				fabricante: vehicle.fabricante,
 				preco: vehicle.preco,
 				ano: vehicle.ano,
-				tipo_veiculo: vehicle.tipo_veiculo,
-				quantidade_portas: null,
-				tipo_combustivel: null,
-				cilindrada: null
+				tipo_veiculo: vehicle.tipo_veiculo
 			};
 
 			// Condicional para adicionar campos específicos para Carro ou Moto
@@ -85,31 +50,112 @@ const CadastrarVeiculoModalButton = () => {
 				vehicleData.quantidade_portas = vehicle.quantidade_portas;
 				vehicleData.tipo_combustivel = vehicle.tipo_combustivel;
 			}
-
-			if (isMoto(vehicle)) vehicleData.cilindrada = vehicle.cilindrada;
-
+			if (isMoto(vehicle)) {
+				vehicleData.cilindrada = vehicle.cilindrada;
+			}
 			// Envio para a API
 			const { data } = await api.post('/veiculos', vehicleData);
 
+			setVehicles((prevVehicles) => [...prevVehicles, data.veiculo]); // Adiciona o veículo na lista de Veículos(tabela)
 			toast.success(data.message);
-			setVehicle(initialVehicle) // Limpar o formulário
-			setLoading(false);
+
+			// Limpa o formulário e Fecha o modal
+			setVehicle(initialVehicle);
+			setModalOpen(false)
 		} catch (err) {
 			console.log(err);
-			setLoading(false);
 		}
 	};
 
+
+	const validateForm = () => {
+		const anoAtual = new Date().getFullYear(); // Pega o ano atual
+
+		// Validação de Categoria
+		if (!vehicle.tipo_veiculo) {
+			toast.warn('Selecione um tipo de veículo!');
+			return false;
+		}
+
+		if (vehicle.modelo && vehicle.fabricante && vehicle.ano && vehicle.preco) {
+			if (!Number.isInteger(vehicle.ano)) {
+				toast.warn('O ano deve ser um número inteiro!');
+				return false;
+			}
+
+			if (vehicle.ano < 1886 || vehicle.ano > anoAtual) {
+				toast.warn(`Insira um ano válido [1886-${anoAtual}]`);
+				return false;
+			}
+			if (!Number(vehicle.preco)) {
+				toast.warn('Insira um preço válido!');
+				return false;
+			}
+
+			// Validação de propriedades específicas
+			if (vehicle.tipo_veiculo === 'CARRO') {
+				if (isCar(vehicle)) {
+					if (!vehicle.quantidade_portas) {
+						toast.warn('Informe a quantidade de portas para o carro!');
+						return false;
+					}
+					if (!vehicle.tipo_combustivel || !Object.values(CombustivelEnum).includes(vehicle.tipo_combustivel)) {
+						toast.warn('Informe o tipo de combustível do carro!');
+						return false;
+					}
+				} else {
+					toast.warn('O tipo de veículo não corresponde à categoria "Carro"');
+					return false;
+				}
+			} else if (vehicle.tipo_veiculo === 'MOTO') {
+				if (isMoto(vehicle)) {
+					if (!vehicle.cilindrada) {
+						toast.warn('Informe a cilindrada da moto!');
+						return false;
+					} else if (!Number.isInteger(vehicle.cilindrada)) {
+						toast.warn('A cilindrada deve ser um número inteiro!');
+						return false;
+					} else if (vehicle.cilindrada > 32_767) {
+						toast.warn('O número máximo de cilindrada é [32.767 - smallint]');
+						return false;
+					}
+				} else {
+					toast.warn('O tipo de veículo não corresponde à categoria "Moto"');
+					return false;
+				}
+			} else {
+				toast.warn('Categoria inválida!');
+				return false;
+			}
+
+			// Converter preço para string formatada
+			if (typeof vehicle.preco === 'number') {
+				vehicle.preco = vehicle.preco.toFixed(2);
+			} else {
+				vehicle.preco = parseFloat(vehicle.preco as string).toFixed(2);
+			}
+
+			console.log('Enviando Veiculo:', vehicle);
+			return true; // Validação passou
+		} else {
+			toast.warn('Preencha todos os campos!');
+			return false;
+		}
+	}
+
 	return (
-		<Dialog.Root onOpenChange={() => { setVehicle(initialVehicle) }}>
+		<Dialog.Root open={modalOpen} onOpenChange={() => {
+			setModalOpen(!modalOpen)
+			setVehicle(initialVehicle)
+		}}>
 			<Dialog.Trigger asChild>
-				<button className="rounded bg-blue-300 text-black p-4 font-medium leading-none shadow-[0_2px_10px] shadow-blackA4 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none m-auto block hover:bg-blue-400 transition-colors">
+				<button className="rounded bg-blue-500 text-white p-4 font-medium leading-none shadow-[0_2px_10px] shadow-blackA4  focus:shadow-black focus:outline-none m-auto block hover:bg-blue-400 transition-colors">
 					Cadastrar Veículo
 				</button>
 			</Dialog.Trigger>
 			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 bg-blackA6 data-[state=open]:animate-overlayShow bg-lime-300/40" />
-				<Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow z-[2]">
+				<Dialog.Overlay className="dialog-overlay" />
+				<Dialog.Content className="dialog-content shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px, _hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] max-w-[800px]">
 					<Dialog.Title className="m-0 text-[17px] font-medium text-mauve12">
 						Cadastro
 						<hr />
@@ -130,8 +176,8 @@ const CadastrarVeiculoModalButton = () => {
 										typeNumber={field.type}
 										label={field.label}
 										placeholder={field.placeholder}
-										setVehicleDataRegister={setVehicle}
-										vehicleDataRegister={vehicle}
+										setVehicle={setVehicle}
+										vehicle={vehicle}
 									/>
 								</div>
 							))}
@@ -143,8 +189,8 @@ const CadastrarVeiculoModalButton = () => {
 								<FormField
 									typeNumber={5}
 									label="Categoria:"
-									setVehicleDataRegister={setVehicle}
-									vehicleDataRegister={vehicle}
+									setVehicle={setVehicle}
+									vehicle={vehicle}
 								/>
 							</div>
 						</div>
@@ -158,9 +204,9 @@ const CadastrarVeiculoModalButton = () => {
 											<FormField
 												typeNumber={field.type}
 												label={field.label}
-												placeholder={field.placeholder}
-												setVehicleDataRegister={setVehicle}
-												vehicleDataRegister={vehicle}
+
+												setVehicle={setVehicle}
+												vehicle={vehicle}
 											/>
 										</div>
 									))}
@@ -172,8 +218,8 @@ const CadastrarVeiculoModalButton = () => {
 												typeNumber={field.type}
 												label={field.label}
 												placeholder={field.placeholder}
-												setVehicleDataRegister={setVehicle}
-												vehicleDataRegister={vehicle}
+												setVehicle={setVehicle}
+												vehicle={vehicle}
 											/>
 										</div>
 									))}
@@ -184,18 +230,17 @@ const CadastrarVeiculoModalButton = () => {
 						{/* Botão de submissão */}
 						<div className="flex justify-end mt-4">
 							<button
-								disabled={loading}
 								type="submit"
-								className="bg-purple-600 text-sm disabled:opacity-50 p-2 rounded-lg text-white"
+								className="bg-purple-600 text-sm p-2 rounded-lg text-white"
 							>
-								{loading ? 'Adicionando...' : 'Adicionar'}
+								Adicionar
 							</button>
 						</div>
 					</form>
 
 					<Dialog.Close asChild>
 						<button
-							className="absolute right-2.5 top-2.5 inline-flex size-[25px] appearance-none items-center justify-center rounded-full text-violet11 hover:bg-violet4 focus:shadow-[0_0_0_2px] focus:shadow-violet7 focus:outline-none"
+							className="closeModalButton"
 							aria-label="Close"
 						>
 							<Cross2Icon />

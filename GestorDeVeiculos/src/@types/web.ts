@@ -1,6 +1,6 @@
 type TablePaginationProps = {
-    totalCars: number
-    carsPerPage: number
+    totalVehicles: number
+    vehiclesPerPage: number
     setCurrentPage: (value: React.SetStateAction<number>) => void
     currentPage: number
 }
@@ -10,13 +10,13 @@ type VehicleProps = {
     modelo: string
     fabricante: string
     ano: number
-    preco: number
+    preco: number | string
     tipo_veiculo: 'CARRO' | 'MOTO' | null
-    addedAt?: Date
+    createdAt?: Date
 }
 
 interface CarProps extends VehicleProps {
-    quantidade_portas: 2 | 3 | 4 | 5 | 6 | null
+    quantidade_portas: '2' | '3' | '4' | '5' | '6' | null
     tipo_combustivel: CombustivelEnum | null
 }
 
@@ -32,9 +32,6 @@ export enum CombustivelEnum {
 }
 
 type VehicleContextProps = {
-    countVehicles: number | null
-    setVehiclesCount: (value: React.SetStateAction<number | null>) => void
-    getVehicles: () => Promise<void>
     vehicle: (CarProps & MotoProps)
     vehicles: (CarProps & MotoProps)[] | null
     setVehicle: (value: React.SetStateAction<(CarProps & MotoProps)>) => void

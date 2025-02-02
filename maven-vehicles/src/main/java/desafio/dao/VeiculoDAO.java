@@ -1,23 +1,22 @@
 package desafio.dao;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import desafio.enums.CarrosEnum.QuantidadePortasEnum;
-import desafio.enums.CarrosEnum.TipoCombustivelEnum;
+
 import desafio.model.Carro;
 import desafio.model.Moto;
 import desafio.model.Veiculo;
+import desafio.services.VeiculoRowMapper;
 
 // Responsável pela Lógica com o DB
 @Repository
@@ -67,85 +66,38 @@ public class VeiculoDAO implements IVeiculoDAO {
     // Atualizar Veiculo
     @Override
     public void update(Veiculo veiculo) {
-        // Montar o SQL dinamicamente
-        StringBuilder sql = new StringBuilder("UPDATE veiculos SET ");
-        List<Object> params = new ArrayList<>();
-
-        // Adicionar parâmetros com base nos campos não nulos ou não zero
-        if (veiculo.getModelo() != null) {
-            sql.append("modelo = ?, ");
-            params.add(veiculo.getModelo());
+        Map<String, Object> vehicleFields = new HashMap<>();
+        if (veiculo.getModelo() != null)
+            vehicleFields.put("modelo", veiculo.getModelo());
+        if (veiculo.getFabricante() != null)
+            vehicleFields.put("fabricante", veiculo.getFabricante());
+        if (veiculo.getPreco() != null && veiculo.getPreco().compareTo(BigDecimal.ZERO) > 0) {
+            vehicleFields.put("preco", veiculo.getPreco());
         }
-        if (veiculo.getFabricante() != null) {
-            sql.append("fabricante = ?, ");
-            params.add(veiculo.getFabricante());
-        }
-        if (veiculo.getPreco().compareTo(BigDecimal.ZERO) > 0) {
-            sql.append("preco = ?, ");
-            params.add(veiculo.getPreco());
-        }
-        if (veiculo.getAno() != 0) {
-            sql.append("ano = ?, ");
-            params.add(veiculo.getAno());
-        }
-        if (veiculo.getTipoVeiculo() != null) {
-            sql.append("tipo_veiculo = ?, ");
-            params.add(veiculo.getTipoVeiculo());
-        }
+        if (veiculo.getAno() != 0)
+            vehicleFields.put("ano", veiculo.getAno());
+        // ⚠️ NÃO ATUALIZA `tipo_veiculo`, pois deve permanecer inalterado
 
-        // Remover a última vírgula e espaço
-        sql.delete(sql.length() - 2, sql.length());
+        updateTable("veiculos", vehicleFields, "id = ?", veiculo.getId());
 
-        // Adicionar a cláusula WHERE
-        sql.append(" WHERE id = ?");
-        params.add(veiculo.getId());
-
-        System.out.println("Parâmetros da query: " + Arrays.toString(params.toArray()));
-
-        // Atualizar no banco de dados
-        jdbcTemplate.update(sql.toString(), params.toArray());
-
-        // Verifica se o veículo é um Carro e atualiza os parâmetros específicos
+        // Atualiza dados específicos de Carro ou Moto
         if (veiculo instanceof Carro) {
             Carro carro = (Carro) veiculo;
-            StringBuilder sqlCarro = new StringBuilder("UPDATE carro SET ");
-            List<Object> paramsCarro = new ArrayList<>();
-
-            // Adiciona parâmetros de acordo com os campos não nulos
+            Map<String, Object> carroFields = new HashMap<>();
             if (carro.getQuantidade_portas() != null) {
-                sqlCarro.append("quantidade_portas = ?, ");
-                paramsCarro.add(carro.getQuantidade_portas().getValor());
+                carroFields.put("quantidade_portas", carro.getQuantidade_portas().getValor());
             }
             if (carro.getTipo_combustivel() != null) {
-                sqlCarro.append("tipo_combustivel = ?, ");
-                paramsCarro.add(carro.getTipo_combustivel().name());
+                carroFields.put("tipo_combustivel", carro.getTipo_combustivel().name());
             }
-
-            // Remove a última vírgula e espaço
-            if (paramsCarro.size() > 0) {
-                sqlCarro.delete(sqlCarro.length() - 2, sqlCarro.length());
-            } else {
-                // Caso não haja nenhum campo para atualizar, não faz a query
-                System.out.println("Nenhum campo para atualizar no Carro.");
-                return; // Ou lançar uma exceção, dependendo da lógica do seu sistema
-            }
-
-            // Adiciona a cláusula WHERE
-            sqlCarro.append(" WHERE veiculo_id = ?");
-            paramsCarro.add(carro.getId());
-
-            System.out.println("SQL do Carro: " + sqlCarro.toString());
-            System.out.println("Parâmetros do Carro: " + Arrays.toString(paramsCarro.toArray()));
-
-            // Atualizar no banco de dados
-            jdbcTemplate.update(sqlCarro.toString(), paramsCarro.toArray());
+            updateTable("carro", carroFields, "veiculo_id = ?", carro.getId());
         } else if (veiculo instanceof Moto) {
             Moto moto = (Moto) veiculo;
-            String sqlMoto = "UPDATE moto SET cilindrada = ? WHERE veiculo_id = ?";
-
-            System.out.println("Cilindrada antes da atualização: " + moto.getCilindrada());
-            System.out.println("Atualizando moto - ID: " + moto.getId() + ", Cilindrada: " + moto.getCilindrada());
-            jdbcTemplate.update(sqlMoto, moto.getCilindrada(), moto.getId());
+            Map<String, Object> motoFields = new HashMap<>();
+            if (moto.getCilindrada() != 0) {
+                motoFields.put("cilindrada", moto.getCilindrada());
+            }
+            updateTable("moto", motoFields, "veiculo_id = ?", moto.getId());
         }
     }
 
@@ -167,50 +119,8 @@ public class VeiculoDAO implements IVeiculoDAO {
                 "LEFT JOIN carro c ON v.id = c.veiculo_id " + // Junção com a tabela carros
                 "LEFT JOIN moto m ON v.id = m.veiculo_id"; // Junção com a tabela motos
 
-        // Definindo um RowMapper para mapear o ResultSet para a classe Veiculo
-        RowMapper<Veiculo> rowMapper = (rs, rowNum) -> {
-            UUID id = UUID.fromString(rs.getString("id"));
-            String modelo = rs.getString("modelo");
-            String fabricante = rs.getString("fabricante");
-            BigDecimal preco = rs.getBigDecimal("preco");
-            int ano = rs.getInt("ano");
-            String tipoVeiculo = rs.getString("tipo_veiculo");
-            Timestamp createdAtTimestamp = rs.getTimestamp("created_at");
-
-            LocalDateTime createdAt = null;
-            if (createdAtTimestamp != null) {
-                createdAt = createdAtTimestamp.toLocalDateTime(); // Para LocalDateTime
-                // ou
-                // Date createdAt = new Date(createdAtTimestamp.getTime()); // Para Date
-            }
-
-            // Lógica para instanciar Carro ou Moto com base no tipo_veiculo
-            if ("CARRO".equals(tipoVeiculo)) {
-                // Aqui você instancia um Carro, passando os parâmetros corretos
-                // Valida se "quantidade_portas" não é nulo antes de mapear
-                QuantidadePortasEnum quantidadePortas = null;
-                String quantidadePortasString = rs.getString("quantidade_portas");
-                if (quantidadePortasString != null && !quantidadePortasString.isBlank()) {
-                    quantidadePortas = QuantidadePortasEnum.fromValor(quantidadePortasString);
-                }
-
-                TipoCombustivelEnum tipoCombustivel = null;
-                String tipoCombustivelString = rs.getString("tipo_combustivel");
-                if (tipoCombustivelString != null && !tipoCombustivelString.isBlank()) {
-                    tipoCombustivel = TipoCombustivelEnum.valueOf(tipoCombustivelString);
-                }
-                return new Carro(id, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel, createdAt);
-            } else if ("MOTO".equals(tipoVeiculo)) {
-                int cilindrada = rs.getInt("cilindrada");
-                return new Moto(id, modelo, fabricante, preco, ano, cilindrada, createdAt);
-            }
-
-            // Retorna null ou lança exceção se o tipo de veículo não for encontrado
-            throw new IllegalArgumentException("Tipo de veículo desconhecido: " + tipoVeiculo);
-        };
-
         // Utiliza o JdbcTemplate para buscar os veículos
-        return jdbcTemplate.query(sql, rowMapper);
+        return jdbcTemplate.query(sql, new VeiculoRowMapper());
     }
 
     // Get Veiculo by Id
@@ -222,41 +132,33 @@ public class VeiculoDAO implements IVeiculoDAO {
                 "LEFT JOIN moto m ON v.id = m.veiculo_id " + // Junção com a tabela motos
                 "WHERE v.id = ?"; // Filtra pelo ID fornecido
 
-        // Definindo um RowMapper para mapear o ResultSet para a classe Veiculo
-        RowMapper<Veiculo> rowMapper = (rs, rowNum) -> {
-            UUID pKey = UUID.fromString(rs.getString("id"));
-            String modelo = rs.getString("modelo");
-            String fabricante = rs.getString("fabricante");
-            BigDecimal preco = rs.getBigDecimal("preco");
-            int ano = rs.getInt("ano");
-            String tipoVeiculo = rs.getString("tipo_veiculo"); // Obtendo o tipo de veículo
-            Timestamp createdAtTimestamp = rs.getTimestamp("created_at");
-
-            LocalDateTime createdAt = null;
-            if (createdAtTimestamp != null) {
-                createdAt = createdAtTimestamp.toLocalDateTime(); // Para LocalDateTime
-                // ou
-                // Date createdAt = new Date(createdAtTimestamp.getTime()); // Para Date
-            }
-
-            // Instancia Carro ou Moto dependendo do tipo de veículo
-            if ("CARRO".equals(tipoVeiculo)) {
-                QuantidadePortasEnum quantidadePortas = QuantidadePortasEnum
-                        .fromValor(rs.getString("quantidade_portas"));
-                TipoCombustivelEnum tipoCombustivel = TipoCombustivelEnum.valueOf(rs.getString("tipo_combustivel"));
-                return new Carro(pKey, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel, createdAt);
-            } else if ("MOTO".equals(tipoVeiculo)) {
-                int cilindrada = rs.getInt("cilindrada"); // Exemplo para moto, pode variar conforme sua modelagem
-                return new Moto(pKey, modelo, fabricante, preco, ano, cilindrada, createdAt);
-            }
-
-            return null; // Caso o tipo de veículo não seja reconhecido
-        };
-
         // Utiliza o JdbcTemplate para buscar o veículo por ID
-        List<Veiculo> veiculos = jdbcTemplate.query(sql, rowMapper, id);
+        List<Veiculo> veiculos = jdbcTemplate.query(sql, new VeiculoRowMapper(), id);
 
         // Retorna o veículo encontrado, ou Optional.empty() caso não exista
         return veiculos.stream().findFirst();
+    }
+
+    // Métodos Auxiliares
+    private void updateTable(String tableName, Map<String, Object> fields, String whereClause, Object... whereArgs) {
+        if (fields.isEmpty()) {
+            return; // Não há nada para atualizar
+        }
+        StringBuilder sql = new StringBuilder("UPDATE ").append(tableName).append(" SET ");
+        List<Object> params = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : fields.entrySet()) {
+            sql.append(entry.getKey()).append(" = ?, ");
+            params.add(entry.getValue());
+        }
+        // Remove a vírgula extra
+        sql.delete(sql.length() - 2, sql.length());
+        sql.append(" WHERE ").append(whereClause);
+        params.addAll(Arrays.asList(whereArgs));
+
+        System.out.println("SQL gerada: " + sql);
+        System.out.println("Parâmetros: " + params);
+
+        jdbcTemplate.update(sql.toString(), params.toArray());
     }
 }

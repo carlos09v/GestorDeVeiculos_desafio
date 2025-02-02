@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
         // Permite requisições de http://localhost:5173 para todas as rotas
         registry.addMapping("/**")
                 .allowedOrigins(allowedOrigin) // Frontend React
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // Métodos permitidos
                 .allowedHeaders("*") // Permite todos os headers
                 .allowCredentials(true); // Permite envio de cookies se necessário
     }

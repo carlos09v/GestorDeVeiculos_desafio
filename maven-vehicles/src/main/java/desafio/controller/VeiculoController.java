@@ -77,7 +77,11 @@ public class VeiculoController {
         try {
             Veiculo veiculoAtualizado = veiculoService.updatePartial(id, veiculo);
 
-            return ResponseEntity.ok(veiculoAtualizado);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Veículo atualizado com sucesso!");
+            response.put("veiculoAtualizado", veiculoAtualizado); // Inclui o veículo salvo no JSON
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (NoSuchElementException e) {
             // Retorna erro padronizado com status 404 (Not Found)
             ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());

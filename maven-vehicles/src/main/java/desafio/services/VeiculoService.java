@@ -2,6 +2,7 @@ package desafio.services;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -88,31 +89,30 @@ public class VeiculoService {
         // Valida se o veículo existe antes de atualizar
         Veiculo veiculoExistente = validateVeiculoExists(uuid);
 
-        // Valida Nulos e Atualiza os campos de forma parcial
-        updateFieldIfNotNull(veiculo.getModelo(), veiculoExistente::setModelo);
-        updateFieldIfNotNull(veiculo.getFabricante(), veiculoExistente::setFabricante);
-        updateFieldIfNotNull(veiculo.getPreco(), veiculoExistente::setPreco);
-        updateFieldIfNotNull(veiculo.getAno(), veiculoExistente::setAno);
-        updateFieldIfNotNull(veiculo.getTipoVeiculo(), veiculoExistente::setTipoVeiculo);
-
-        if (veiculoExistente instanceof Carro && veiculo instanceof Carro) {
-            Carro carroExistente = (Carro) veiculoExistente;
-            Carro carroAtualizado = (Carro) veiculo;
-
-            updateQuantidadePortasIfNotNull(carroAtualizado.getQuantidade_portas(),
-                    carroExistente::setQuantidade_portas);
-            updateTipoCombustivelIfNotNull(carroAtualizado.getTipo_combustivel(), carroExistente::setTipo_combustivel);
-        } else if (veiculoExistente instanceof Moto && veiculo instanceof Moto) {
-            Moto motoExistente = (Moto) veiculoExistente;
-            Moto motoAtualizada = (Moto) veiculo;
-
-            System.out.println("Cilindrada antes da atualização no Service: " + motoAtualizada.getCilindrada());
-            updateFieldIfNotNull(motoAtualizada.getCilindrada(), motoExistente::setCilindrada);
-        }
-
-        // Salva e retorna o veículo atualizado
-        veiculoDAO.update(veiculoExistente);
-        return veiculoExistente;
+         // 🔹 Atualiza apenas os campos não nulos
+         updateFieldIfNotNull(veiculo.getModelo(), veiculoExistente::setModelo);
+         updateFieldIfNotNull(veiculo.getFabricante(), veiculoExistente::setFabricante);
+         updateFieldIfNotNull(veiculo.getPreco(), veiculoExistente::setPreco);
+         updateFieldIfNotNull(veiculo.getAno(), veiculoExistente::setAno);
+ 
+         // 🔹 Atualiza campos específicos se for um Carro
+         if (veiculoExistente instanceof Carro) {
+             Carro carroExistente = (Carro) veiculoExistente;
+             Carro carroAtualizado = (Carro) veiculo;
+             updateQuantidadePortasIfNotNull(carroAtualizado.getQuantidade_portas(), carroExistente::setQuantidade_portas);
+             updateTipoCombustivelIfNotNull(carroAtualizado.getTipo_combustivel(), carroExistente::setTipo_combustivel);
+         }
+ 
+         // 🔹 Atualiza campos específicos se for uma Moto
+         else if (veiculoExistente instanceof Moto) {
+             Moto motoExistente = (Moto) veiculoExistente;
+             Moto motoAtualizada = (Moto) veiculo;
+             updateFieldIfNotNull(motoAtualizada.getCilindrada(), motoExistente::setCilindrada);
+         }
+ 
+         // 🔹 Chama o DAO para aplicar a atualização no banco de dados
+         veiculoDAO.update(veiculoExistente);
+         return veiculoExistente;
     }
 
     // Deletar veículo por ID
@@ -213,6 +213,8 @@ public class VeiculoService {
             // Validação da categoria da moto
             if (moto.getCilindrada() <= 0) {
                 throw new IllegalArgumentException("A Cilindrada da moto não pode ser vazia.");
+            }else if (moto.getCilindrada() > 32_767) {
+                throw new IllegalArgumentException("A Cilindrada da moto não pode ser maior que [32.767 - smallint]");
             }
         }
     }

@@ -6,10 +6,16 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import desafio.enums.VeiculosEnum.TipoVeiculosEnum;
 
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "tipo_veiculo")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Carro.class, name = "CARRO"),
+    @JsonSubTypes.Type(value = Moto.class, name = "MOTO")
+})
 public class Veiculo {
     private UUID id;
     private String modelo;
@@ -109,6 +115,7 @@ public class Veiculo {
         this.preco = preco;
     }
 
+    @JsonIgnore
     public String getTipoVeiculo() {
         return tipoVeiculo;
     }

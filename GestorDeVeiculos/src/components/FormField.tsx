@@ -1,4 +1,3 @@
-import { ChangeEvent } from "react"
 import { CarProps, MotoProps, VehicleProps } from "../@types/web"
 import clsx from "clsx";
 import { selectFields } from "../utils/selectFields";
@@ -14,22 +13,22 @@ interface FormFieldProps {
   vehicle: (CarProps & MotoProps);
 }
 
+export const fieldMapVehicle: Record<number, keyof (CarProps & MotoProps)> = {
+  1: "modelo",
+  2: "fabricante",
+  3: "ano",
+  4: "preco",
+  6: "quantidade_portas",
+  7: "tipo_combustivel",
+  8: "cilindrada"
+};
+
 
 export const FormField = ({ typeNumber, placeholder, label, setVehicle, vehicle }: FormFieldProps) => {
 
-  const fieldMapVehicle: Record<number, keyof (CarProps & MotoProps)> = {
-    1: "modelo",
-    2: "fabricante",
-    3: "ano",
-    4: "preco",
-    6: "quantidade_portas",
-    7: "tipo_combustivel",
-    8: "cilindrada"
-  };
-
   // Acessa o campo correspondente de vehicle
   const vehicleField = fieldMapVehicle[typeNumber];
-  
+
   return (
     <div className="font-bold w-full">
       <label htmlFor={`input-${typeNumber}`} className="mr-3">{label}</label>
@@ -47,7 +46,7 @@ export const FormField = ({ typeNumber, placeholder, label, setVehicle, vehicle 
             "p-2 border-2 border-black rounded mb-4 w-full", // Padrão: ocupa largura total
             typeNumber === 3 || typeNumber === 4 ? "!w-1/3" : ""
           )}
-          onChange={(e) => handleChange(e, setVehicle, vehicleField)}
+          onChange={(e) => handleChange(e, setVehicle, fieldMapVehicle)}
           value={
             vehicle[vehicleField] !== undefined && vehicle[vehicleField] !== null
               ? vehicle[vehicleField].toString()
@@ -58,7 +57,7 @@ export const FormField = ({ typeNumber, placeholder, label, setVehicle, vehicle 
 
       {/* ---- Categoria */}
       {typeNumber == 5 && (
-        <select className="rounded p-2 border-2 border-black" name="categoryOptions" onChange={(e) => handleChange(e, setVehicle, vehicleField)} value={vehicle.tipo_veiculo ?? ''}>
+        <select className="rounded p-2 border-2 border-black" name="categoryOptions" onChange={(e) => handleChange(e, setVehicle, fieldMapVehicle)} >
           <option className='text-center'>--- ⬇️ ⬇️ ---</option>
           <option value="CARRO">🚙 Carro</option>
           <option value="MOTO">🛵 Moto</option>
@@ -73,7 +72,7 @@ export const FormField = ({ typeNumber, placeholder, label, setVehicle, vehicle 
           <select
             className="p-2 border-2 border-black rounded"
             name={selectFields[fieldMapVehicle[typeNumber]].name} // Usar o mapeamento
-            onChange={(e) => handleChange(e, setVehicle, vehicleField)}
+            onChange={(e) => handleChange(e, setVehicle, fieldMapVehicle)}
             value={formatValue(selectFields[fieldMapVehicle[typeNumber]].name, vehicle[selectFields[fieldMapVehicle[typeNumber]].name as keyof VehicleProps])}
           >
             {selectFields[fieldMapVehicle[typeNumber]].options.map(({ value, label }) => (

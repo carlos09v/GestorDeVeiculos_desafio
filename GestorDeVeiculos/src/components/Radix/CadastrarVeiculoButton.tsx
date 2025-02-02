@@ -7,29 +7,12 @@ import { VehicleContext } from "../../Context/VehicleContext";
 import { FormField } from "../FormField";
 import { CarProps, MotoProps } from "../../@types/web";
 import { validateForm } from "../../utils/validateForm";
+import { carroFields, formFields, motoFields } from "../../utils/formFields";
 
 const CadastrarVeiculoModalButton = () => {
 	const { vehicle, setVehicle, setVehicles, isCar, isMoto, initialVehicle } = useContext(VehicleContext);
 	const [modalOpen, setModalOpen] = useState(false);
 
-	// Define os campos do formulário com base na categoria
-	const formFields = [
-		{ type: 1, label: "Modelo:", placeholder: "Ex: Gol" },
-		{ type: 2, label: "Fabricante:", placeholder: " Ex: Volkswagen" },
-		{ type: 3, label: "Ano:", placeholder: "Ex: 2020" },
-		{ type: 4, label: "Preço R$:", placeholder: "Ex: 2000.00" }
-	];
-
-	// Adiciona campos específicos para Carro
-	const carroFields = [
-		{ type: 6, label: "Quantidade de Portas:" },
-		{ type: 7, label: "Combustível:" },
-	];
-
-	// Adiciona campos específicos para Moto
-	const motoFields = [
-		{ type: 8, label: "Cilindrada:", placeholder: "Ex: 150" },
-	];
 
 	// Cadastrar Veículo
 	const handleVehicleRegister = async (e: FormEvent) => {

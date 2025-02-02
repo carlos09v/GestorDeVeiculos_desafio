@@ -18,9 +18,10 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
         tipo_combustivel: null,
     };
 
+    
     const [vehicle, setVehicle] = useState<(CarProps & MotoProps)>(initialVehicle)
     const [vehicles, setVehicles] = useState<(CarProps & MotoProps)[]>([])
-
+    const [filters, setFilters] = useState<CarProps & MotoProps>({...initialVehicle, ano: 0}); // Inicialize com os filtros padrão ou um objeto vazio
 
     function isCar(vehicle: VehicleType): vehicle is CarProps {
         return (vehicle as CarProps).quantidade_portas !== undefined && (vehicle as CarProps).tipo_combustivel !== undefined;
@@ -31,7 +32,7 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <VehicleContext.Provider value={{ setVehicle, vehicle, setVehicles, vehicles, isCar, isMoto, initialVehicle }}>
+        <VehicleContext.Provider value={{ setVehicle, vehicle, setVehicles, vehicles, isCar, isMoto, initialVehicle, filters, setFilters }}>
             {children}
         </VehicleContext.Provider>
     )

@@ -11,7 +11,7 @@ type VehicleProps = {
     fabricante: string
     ano: number
     preco: number | string
-    tipo_veiculo: 'CARRO' | 'MOTO' | null
+    tipo_veiculo: '' | 'CARRO' | 'MOTO' | null
     createdAt?: Date
 }
 
@@ -31,6 +31,7 @@ export enum CombustivelEnum {
     FLEX
 }
 
+
 type VehicleContextProps = {
     vehicle: (CarProps & MotoProps)
     vehicles: (CarProps & MotoProps)[] | null
@@ -48,6 +49,8 @@ type VehicleContextProps = {
         quantidade_portas: null;
         tipo_combustivel: null;
     }
+    filters: CarProps & MotoProps;
+    setFilters: React.Dispatch<React.SetStateAction<CarProps & MotoProps>>;
 }
 
 export type VehicleType = CarProps | MotoProps;

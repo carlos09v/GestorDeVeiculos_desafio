@@ -79,7 +79,7 @@ export const VeiculoInfo = ({ vehicle, setVehicles }: Partial<VehicleContextProp
                     </Dialog.Title>
                     <Dialog.Description className="mb-5 mt-2.5 text-[15px] leading-normal text-mauve11">
                         Visualize seu veiculo e faça mudanças! <br />
-                        <p className="text-sm">ID:  <span className="text-blue-500">{tempVehicle.id}</span></p>
+                        <span className="text-sm">ID: <span className="text-blue-500">{tempVehicle.id}</span></span>
                     </Dialog.Description>
                     <form onSubmit={updateVehicle} className="flex flex-col">
                         {/* 🔹 Mapeia os campos comuns */}

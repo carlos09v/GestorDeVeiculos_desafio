@@ -67,7 +67,7 @@ export const Table = ({ setVehicles, vehicles }: Partial<VehicleContextProps>) =
                                 <tr key={i} className="relative" >
                                     <td className="w-10"></td>
                                     {!loading && (
-                                        <VeiculoInfo />
+                                        <VeiculoInfo vehicle={vehicle} setVehicles={setVehicles} />
                                     )}
                                
                                     <td className="text-center  py-2">{(currentPage - 1) * vehiclesPerPage + (i + 1)}</td>

@@ -1,0 +1,61 @@
+# Sobre Java:
+- JDK (Java Development Kit):
+Contém o JRE e ferramentas adicionais necessárias para o desenvolvimento de aplicações Java.
+Inclui ferramentas como javac (compilador Java), javadoc, jarsigner e outras.
+- JRE (Java Runtime Environment):
+Contém apenas o necessário para executar aplicações Java.
+
+## Comandos Maven:
+1. mvn clean
+2. mvn build
+3. mvn compile
+    - Irá gerar a pasta target\classes
+4. mvn install
+    - Compila, Testa e depois gera uma versão no (Usuário/.m2/repository)
+5. mvn spring-boot:run
+
+## Instalação de Dependências (Maven Repository):
+- ...
+- PostgreSQL
+- SpringBoot
+    - Spring Web
+    - Spring Data JPA (ñ utilizado) (usei JDBC)
+    - Spring Starter JDBC
+    - Spring devtools (Live reload)
+
+## Docker Compose (-> PostgreSQL):
+- docker-compose up -d
+
+## Spring Boot ():
+- Formar de iniciar:
+    - Iniciar projeto com Spring Initializr:
+        - pelo (https://start.spring.io)
+        - pela extensão Vs Code
+    - Maven Archetype
+- Padrão MVC:
+    - Controller: HTTP
+    - Service: responsável pelas validações
+    - DAO: responsável pela lógica com DB
+    - Ou seja: Controller > Service > DAO/Repository
+
+## Testes:
+- Unitários: Testam métodos isolados, como insert, update, delete, findById e findAll.
+- de Integração: Validam se a aplicação se conecta corretamente ao banco de dados e executa operações reais, como inserção e recuperação de dados
+
+## Git (Staging area):
+- git reset head . (remover todos)
+- git add -f <arquivo> (adicionar o que esta untraked)
+
+## Git (Merge):
+- git checkout -b temp-merge  (Crie uma branch temporária)
+- git merge backend --no-ff
+- git merge frontend --no-ff
+
+## Git (usando Stash pra mover arquivos entre branches):
+- git add -f GestorDeVeiculos/.env maven-vehicles/src/main/resources/application.properties maven-vehicles/docker-compose.yml (Pra adicionar no Staging)
+- git stash push -m "Guardando arquivos não rastreados"
+    - git stash -k (apenas os que estao no staging area)
+- git stash list (ver lista)
+- git stash apply stash@{1} (Se você quiser manter o stash após usá-lo (sem removê-lo da lista de stashes))
+- git stash drop stash@{1} (remover)
+

@@ -15,7 +15,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-
 // Mapeamento pra usar no DAO findAll() e findById()
 public class VeiculoRowMapper implements RowMapper<Veiculo> {
 
@@ -33,8 +32,16 @@ public class VeiculoRowMapper implements RowMapper<Veiculo> {
 
         // Mapeia o veículo de acordo com o tipo
         if ("CARRO".equals(tipoVeiculo)) {
-            QuantidadePortasEnum quantidadePortas = QuantidadePortasEnum.fromValor(rs.getString("quantidade_portas"));
-            TipoCombustivelEnum tipoCombustivel = TipoCombustivelEnum.valueOf(rs.getString("tipo_combustivel"));
+            String quantidadePortasStr = rs.getString("quantidade_portas");
+            QuantidadePortasEnum quantidadePortas = quantidadePortasStr != null
+                    ? QuantidadePortasEnum.fromValor(quantidadePortasStr)
+                    : QuantidadePortasEnum.DUAS; // Defina um valor padrão
+
+            String tipoCombustivelStr = rs.getString("tipo_combustivel");
+            TipoCombustivelEnum tipoCombustivel = tipoCombustivelStr != null
+                    ? TipoCombustivelEnum.valueOf(tipoCombustivelStr)
+                    : TipoCombustivelEnum.GASOLINA; // Defina um valor padrão
+
             return new Carro(id, modelo, fabricante, preco, ano, quantidadePortas, tipoCombustivel, createdAt);
         } else if ("MOTO".equals(tipoVeiculo)) {
             int cilindrada = rs.getInt("cilindrada");

@@ -4,7 +4,7 @@ Este projeto é um sistema para gestão de veículos, permitindo cadastro, lista
 
 <h3><a href="https://gestor-de-veiculos-desafio.vercel.app" target="_blank">👉🏽 Veja o site 👈🏽</a> </h3>
 <div align='center'>
-    <img width='500' src="https://github.com/carlos09v/GestorDeVeiculos_desafio/blob/main/GestorDeVeiculos/src/assets/tablePreview.jpg?raw=true" alt="Table Preview">
+    <img width='600' src="https://github.com/carlos09v/GestorDeVeiculos_desafio/blob/main/GestorDeVeiculos/src/assets/tablePreview.jpg?raw=true" alt="Table Preview">
 </div>
 
 ## 📌 **Tecnologias Utilizadas**

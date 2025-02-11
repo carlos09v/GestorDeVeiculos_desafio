@@ -18,7 +18,7 @@ export const Filter = ({ setCurrentPage }: { vehicles: (CarProps & MotoProps)[];
 
     
     return (
-        <div className="w-full flex gap-2 items-center">
+        <div className="w-full flex gap-2 items-center font-medium">
             {/* Select para Categoria */}
             <fieldset>
                 <label htmlFor="categoryOptions">Categoria:</label>

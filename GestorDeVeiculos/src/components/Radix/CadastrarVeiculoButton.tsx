@@ -8,10 +8,12 @@ import { FormField } from "../FormField";
 import { CarProps, MotoProps } from "../../@types/web";
 import { validateForm } from "../../utils/validateForm";
 import { carroFields, formFields, motoFields } from "../../utils/formFields";
+import clsx from "clsx";
 
 const CadastrarVeiculoModalButton = () => {
 	const { vehicle, setVehicle, setVehicles, isCar, isMoto, initialVehicle } = useContext(VehicleContext);
 	const [modalOpen, setModalOpen] = useState(false);
+	const [disabled, setDisabled] = useState(false)
 
 
 	// Cadastrar Veículo
@@ -20,6 +22,8 @@ const CadastrarVeiculoModalButton = () => {
 		if (!validateForm(vehicle, isCar, isMoto)) return // validar
 
 		try {
+			setDisabled(true)
+	
 			// Criação do objeto com os campos principais
 			const vehicleData: Partial<CarProps & MotoProps> = {
 				modelo: vehicle.modelo,
@@ -48,6 +52,8 @@ const CadastrarVeiculoModalButton = () => {
 			setModalOpen(false)
 		} catch (err) {
 			console.log(err);
+		}finally {
+			setDisabled(false)
 		}
 	};
 
@@ -58,7 +64,7 @@ const CadastrarVeiculoModalButton = () => {
 			setVehicle(initialVehicle)
 		}}>
 			<Dialog.Trigger asChild>
-				<button className="rounded bg-blue-500 text-white p-4 font-medium leading-none shadow-[0_2px_10px] shadow-blackA4  focus:shadow-black focus:outline-none m-auto block hover:bg-blue-400 transition-colors">
+				<button className="rounded bg-blue-500 text-white p-4 font-semibold leading-none shadow-[0_2px_10px] shadow-blackA4  focus:shadow-black focus:outline-none m-auto block hover:bg-blue-400 transition-colors">
 					Cadastrar Veículo
 				</button>
 			</Dialog.Trigger>
@@ -140,7 +146,11 @@ const CadastrarVeiculoModalButton = () => {
 						<div className="flex justify-end mt-4">
 							<button
 								type="submit"
-								className="bg-purple-600 text-sm p-2 rounded-lg text-white"
+								className={clsx(
+									"text-sm p-2 rounded-lg text-white transition-colors",
+									disabled ? "bg-purple-300 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+								  )}
+								disabled={disabled}
 							>
 								Adicionar
 							</button>

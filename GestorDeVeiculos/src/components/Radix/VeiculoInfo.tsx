@@ -16,6 +16,7 @@ export const VeiculoInfo = ({ vehicle, setVehicles }: Partial<VehicleContextProp
     const [modalOpen, setModalOpen] = useState(false);
     if (!vehicle) return null; // Evita erro se `vehicle` for undefined
     const [tempVehicle, setTempVehicle] = useState<CarProps & MotoProps>(vehicle)
+    const [disabled, setDisabled] = useState(false) 
 
     // 🔹 Lista de campos comuns para todos os veículos
     const vehicleFields = [
@@ -43,6 +44,7 @@ export const VeiculoInfo = ({ vehicle, setVehicles }: Partial<VehicleContextProp
         if (!validateForm(tempVehicle, isCar, isMoto)) return
         console.log('Temp Vehicle: ' + tempVehicle)
 
+        setDisabled(true)
         try {
             // Envio para a API
             const { data } = await api.patch(`/veiculos/${tempVehicle.id}`, tempVehicle);
@@ -55,11 +57,14 @@ export const VeiculoInfo = ({ vehicle, setVehicles }: Partial<VehicleContextProp
                     );
                 });
             }
+
             toast.success(data.message);
             // Fecha o modal
             setModalOpen(false)
         } catch (error) {
             console.log(error)
+        }finally {
+            setDisabled(false)
         }
     }
 
@@ -67,8 +72,8 @@ export const VeiculoInfo = ({ vehicle, setVehicles }: Partial<VehicleContextProp
     return (
         <Dialog.Root open={modalOpen} onOpenChange={setModalOpen}>
             <Dialog.Trigger asChild>
-                <td className="absolute left-2 top-1/2 -translate-y-1/2 rounded p-2 bg-blue-400 cursor-pointer hover:scale-105 duration-300 group">
-                    <MagnifyingGlassIcon className="text-lg duration-300" />
+                <td className="absolute left-2 top-1/2 -translate-y-1/2 rounded p-2 bg-blue-500 cursor-pointer hover:scale-105 duration-300 group">
+                    <MagnifyingGlassIcon className="text-lg duration-300 text-white" />
                 </td>
             </Dialog.Trigger>
             <Dialog.Portal>
@@ -135,7 +140,7 @@ export const VeiculoInfo = ({ vehicle, setVehicles }: Partial<VehicleContextProp
 
 
                         <div className="mt-[25px] flex justify-end">
-                            <button className="inline-flex h-[35px] items-center justify-center rounded bg-green4 px-[15px] font-medium leading-none text-green11 outline-none outline-offset-1 hover:bg-green5 focus-visible:outline-2 focus-visible:outline-green6 select-none" type="submit">
+                            <button className="inline-flex h-[35px] items-center justify-center rounded bg-green4 px-[15px] font-medium leading-none text-green11 outline-none outline-offset-1 hover:bg-green5 focus-visible:outline-2 focus-visible:outline-green6 select-none disabled:bg-gray-400 disabled:cursor-not-allowed" disabled={disabled} type="submit">
                                 Atualizar
                             </button>
                         </div>

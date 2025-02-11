@@ -9,11 +9,12 @@ import { Filter } from "./Filter"
 import { VehicleContext } from "../Context/VehicleContext"
 
 
-
 export const Table = ({ setVehicles, vehicles }: Partial<VehicleContextProps>) => {
-    const [loading, setLoading] = useState(false)
     const [filteredVehicles, setFilteredVehicles] = useState<(CarProps & MotoProps)[]>([])
     const { filters } = useContext(VehicleContext); // Acessando o contexto
+    // Loading no Veiculo Especifico
+    const [loadingVehicles, setLoadingVehicles] = useState<{ [key: string]: boolean }>({});
+
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1)
@@ -51,7 +52,7 @@ export const Table = ({ setVehicles, vehicles }: Partial<VehicleContextProps>) =
             if (filters.quantidade_portas !== null && vehicle.quantidade_portas !== filters.quantidade_portas) {
                 matches = false;
             }
-        
+
             // Filtro para tipo de combustível
             if (filters.tipo_combustivel && Object.values(CombustivelEnum).includes(filters.tipo_combustivel) && vehicle.tipo_combustivel !== undefined) {
                 if (vehicle.tipo_combustivel !== filters.tipo_combustivel) {
@@ -77,21 +78,27 @@ export const Table = ({ setVehicles, vehicles }: Partial<VehicleContextProps>) =
         e.preventDefault()
         if (id === '') return toast.warn('Id vazio!')
 
-        setLoading(true)
+        setLoadingVehicles(prev => ({ ...prev, [id]: true })); // Define o veículo como em carregamento
         try {
             const { data } = await api.delete(`/veiculos/${id}`)
 
             toast.success(data.message)
             // Remover o veículo do estado local
             if (setVehicles) {
-                setVehicles((prevVehicles) =>
-                    prevVehicles?.filter(vehicle => vehicle.id !== id) || []
-                );
+                setVehicles(prevVehicles => {
+                    const updatedVehicles = prevVehicles?.filter(vehicle => vehicle.id !== id) || [];
+                    
+                    // 🔹 Atualiza a lista filtrada para refletir a mudança
+                    setFilteredVehicles(updatedVehicles);
+    
+                    return updatedVehicles;
+                });
             }
+
         } catch (err: any) {
             if (err.response) return toast.error(err.response.data.message)
         } finally {
-            setLoading(false)
+            setLoadingVehicles(prev => ({ ...prev, [id]: false })); // Remove o veículo do estado de carregamento
         }
     }
 
@@ -119,28 +126,40 @@ export const Table = ({ setVehicles, vehicles }: Partial<VehicleContextProps>) =
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentVehicles?.map((vehicle, i) => (
-                                    <tr key={i} className="relative" >
-                                        <td className="w-10"></td>
-                                        {!loading && (
-                                            <VeiculoInfo vehicle={vehicle} setVehicles={setVehicles} />
-                                        )}
+                                {currentVehicles?.map((vehicle, i) => {
+                                    if (!vehicle.id) return null; // Evita erro de chave inválida
 
-                                        <td className="text-center  py-2">{(currentPage - 1) * vehiclesPerPage + (i + 1)}</td>
-                                        <td className="text-center">{new Date(vehicle.createdAt ?? new Date()).toLocaleDateString()}</td>
-                                        <td className="text-left font-medium">{vehicle.tipo_veiculo}</td>
-                                        <td className="text-left">{vehicle.modelo}</td>
-                                        <td className="text-left">{vehicle.fabricante}</td>
-                                        <td className="text-center">{vehicle.ano}</td>
-                                        <td className="text-blue-700 text-right font-semibold">R$ {vehicle.preco}</td>
-                                        <td className="w-12"></td>
-                                        {!loading && (
-                                            <td className="absolute text-white right-1 top-1/2 -translate-y-1/2 rounded p-2 bg-red-500 cursor-pointer hover:scale-105 duration-300 group" onClick={e => deleteVehicle(e, vehicle.id ?? '')}>
-                                                <TrashIcon className="text-lg duration-300" />
+                                    return (
+
+                                        <tr key={vehicle.id} className="relative" >
+                                            <td className="w-10"></td>
+                                            {!loadingVehicles[vehicle.id] && (
+                                                <VeiculoInfo vehicle={vehicle} setVehicles={setVehicles} />
+                                            )}
+
+                                            <td className="text-center  py-2">{(currentPage - 1) * vehiclesPerPage + (i + 1)}</td>
+                                            <td className="text-center">{new Date(vehicle.createdAt ?? new Date()).toLocaleDateString()}</td>
+                                            <td className="text-left font-medium">{vehicle.tipo_veiculo}</td>
+                                            <td className="text-left">{vehicle.modelo}</td>
+                                            <td className="text-left">{vehicle.fabricante}</td>
+                                            <td className="text-center">{vehicle.ano}</td>
+                                            <td className="text-blue-700 text-right font-semibold">R$ {vehicle.preco}</td>
+                                            <td className="w-12"></td>
+                                            <td
+                                                className={`absolute text-white right-1 top-1/2 -translate-y-1/2 rounded p-2 
+    ${loadingVehicles[vehicle.id] ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 cursor-pointer hover:scale-105"} 
+    duration-300 group`}
+                                                onClick={e => vehicle.id && !loadingVehicles[vehicle.id] && deleteVehicle(e, vehicle.id)}
+                                            >
+                                                {loadingVehicles[vehicle.id] ? (
+                                                    <span className="text-sm">...</span>  // Indicador de carregamento
+                                                ) : (
+                                                    <TrashIcon className="text-lg duration-300" />
+                                                )}
                                             </td>
-                                        )}
-                                    </tr>
-                                ))}
+                                        </tr>
+                                    )
+                                })}
                             </tbody>
                         </table>
 

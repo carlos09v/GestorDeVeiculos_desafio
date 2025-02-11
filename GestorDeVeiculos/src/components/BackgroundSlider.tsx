@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import carro1 from "../assets/carro1.jpg";
-import carro2 from "../assets/carro2.jpg";
-import carro3 from "../assets/carro3.jpg";
-import carro4 from "../assets/carro4.jpg";
-import carro5 from "../assets/carro5.jpg";
+import carro1 from "../assets/BackgroundImages/carro1.jpg";
+import carro2 from "../assets/BackgroundImages/carro2.jpg";
+import carro3 from "../assets/BackgroundImages/carro3.jpg";
+import carro4 from "../assets/BackgroundImages/carro4.jpg";
+import carro5 from "../assets/BackgroundImages/carro5.jpg";
 
 const images = [carro1, carro2, carro3, carro4, carro5];
 

@@ -15,7 +15,9 @@ const Pagination = ({ totalVehicles, vehiclesPerPage, setCurrentPage, currentPag
   return (
     <div className="flex gap-2">
       {visiblePages.map((page, i) => (
-        <button className="border-2 border-black p-2 bg-purple-500 hover:bg-purple-700 rounded-md text-white transition-colors" key={i} id={page === currentPage ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+        <button className={`border-2 border-black p-2 rounded-md transition-colors
+          ${page === currentPage ? "bg-purple-600 text-white" : "bg-purple-500 hover:bg-purple-700 text-white"}
+        `} key={i} id={page === currentPage ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
       ))}
 
       {pages.length > 10 && (
